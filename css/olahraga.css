@@ -1,0 +1,138 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #333;
+  color: #333;
+  display: flex;
+}
+/* Gaya untuk elemen select */
+#exercise {
+  width: 100%; /* Membuat select mengisi ruang yang tersedia */
+  padding: 10px; /* Memberikan padding agar teks lebih mudah dibaca */
+  font-size: 1rem; /* Ukuran font yang konsisten dengan input lainnya */
+  border: 1px solid #ddd; /* Menambahkan border yang seragam */
+  border-radius: 5px; /* Membuat sudut seleksi lebih melengkung */
+  background-color: white; /* Memberikan latar belakang putih pada select */
+  box-sizing: border-box; /* Memastikan padding dihitung dalam lebar elemen */
+}
+
+/* Gaya umum untuk input */
+input[type="number"], input[type="text"], select {
+  width: 100%; /* Membuat semua input dan select mengisi ruang yang tersedia */
+  padding: 10px; /* Memberikan padding untuk kenyamanan pengguna */
+  font-size: 1rem; /* Ukuran font yang konsisten */
+  border: 1px solid #ddd; /* Border seragam */
+  border-radius: 5px; /* Membuat sudut lebih melengkung */
+  background-color: white; /* Latar belakang putih */
+  box-sizing: border-box; /* Memastikan padding dihitung dalam lebar elemen */
+}
+
+
+/* Sidebar */
+.sidebar {
+  background-color: #333; /* Dark background */
+  color: white;
+  width: 250px;
+  padding: 30px 20px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: 3px 0px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.sidebar a {
+  display: block;
+  color: white;
+  padding: 15px;
+  margin: 10px 0;
+  text-decoration: none;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, padding-left 0.3s;
+}
+
+.sidebar a:hover {
+  background-color: #575757;  /* Slightly lighter background */
+  padding-left: 25px; /* Expansion effect on hover */
+}
+
+.sidebar a.active {
+  background-color: #4CAF50;  /* Active menu item with green background */
+}
+/* Main Content */
+.main-content {
+  margin-left: 270px; /* Jarak agar konten tidak tertutup sidebar */
+  padding: 20px;
+  width: calc(100% - 270px); /* Menyesuaikan lebar setelah sidebar */
+  transition: margin-left 0.3s ease;
+  min-height: 100vh; /* Memastikan halaman memiliki tinggi minimal */
+  overflow: auto; /* Menambahkan scroll bila konten lebih panjang dari layar */
+}
+
+/* Styling untuk header */
+h1, h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+label {
+  padding-top:30px;
+  padding-bottom:30px;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+/* Card untuk input olahraga */
+.card {
+  background-color: #444;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.card input, .card button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+.card input {
+  margin-bottom: 10px;
+}
+
+.total-kalori {
+  background-color: #555;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 30px;
+}
+
+h3, p {
+  color: white;
+  margin: 0;
+}
+
+/* Memastikan footer tidak menutupi konten */
+footer {
+  background-color: #222;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}

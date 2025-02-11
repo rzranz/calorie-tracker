@@ -1,0 +1,211 @@
+/* Body styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+}
+
+/* Container for form */
+.container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    transition: box-shadow 0.3s ease;
+}
+
+/* Hover effect for the container */
+.container:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Title styling */
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+/* Label styling */
+label {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+    text-align: left;
+}
+
+/* Styling for input elements */
+input[type="number"],
+input[type="submit"],
+select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+/* Focus effect for input elements */
+input[type="number"]:focus,
+input[type="submit"]:focus,
+select:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+/* Submit button styling */
+input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Styling untuk tombol Diet dan Bulking */
+.buttons a button {
+    background-color: #f2f2f2; /* Latar belakang abu-abu terang */
+    color: #333; /* Warna teks hitam */
+    padding: 12px 30px; /* Menambahkan padding pada tombol */
+    font-size: 16px; /* Ukuran font lebih besar */
+    border: 1px solid #ddd; /* Border abu-abu ringan */
+    border-radius: 5px; /* Sudut tombol yang melengkung */
+    cursor: pointer; /* Menunjukkan bahwa tombol dapat diklik */
+    margin: 10px; /* Jarak antar tombol */
+    transition: background-color 0.3s, border-color 0.3s; /* Efek transisi halus */
+    text-decoration: none; /* Menghapus garis bawah pada link */
+  }
+  
+  /* Efek hover untuk tombol */
+  .buttons a button:hover {
+    background-color: #4CAF50; /* Latar belakang hijau saat hover */
+    color: white; /* Warna teks putih */
+    border-color: #4CAF50; /* Mengubah warna border menjadi hijau */
+  }
+  
+  /* Tombol aktif untuk kategori yang dipilih */
+  .buttons a button.active {
+    background-color: #4CAF50; /* Latar belakang hijau */
+    color: white; /* Teks putih */
+    border-color: #4CAF50; /* Border hijau */
+  }
+  
+/* Result and category text styling */
+.result,
+.category {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.category {
+    font-size: 20px;
+    color: #4CAF50;
+}
+
+/* Responsive design for mobile devices */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    input[type="number"],
+    input[type="submit"],
+    select {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .result,
+    .category {
+        font-size: 16px;
+    }
+}
+
+/* Styling for Sidebar */
+.sidebar {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #333;
+    padding-top: 20px;
+    padding-left: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.sidebar a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: block;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+.sidebar a:hover {
+    background-color: #575757;
+}
+
+/* Main content styling */
+.main-content {
+    margin-left: 260px;
+    padding: 20px;
+    width: calc(100% - 260px);
+}
+
+.program-diet {
+    margin-top: 20px;
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.program-diet h2 {
+    color: #4CAF50;
+}
+
+/* Sidebar responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .main-content {
+        margin-left: 220px;
+        width: calc(100% - 220px);
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 150px;
+    }
+
+    .main-content {
+        margin-left: 170px;
+        width: calc(100% - 170px);
+    }
+}

@@ -1,0 +1,247 @@
+/* button */
+.reset-btn {
+  background-color: #3498db;  /* Warna biru untuk tombol */
+  color: white;               /* Warna teks putih */
+  padding: 15px 30px;         /* Padding yang lebih besar untuk tombol */
+  border: none;               /* Menghapus border default */
+  border-radius: 5px;         /* Membuat sudut tombol lebih melengkung */
+  font-size: 18px;            /* Ukuran font lebih besar */
+  cursor: pointer;           /* Menambahkan cursor pointer saat hover */
+  display: block;             /* Mengubah tampilan tombol menjadi block-level */
+  margin-top: 30px;           /* Memberikan jarak lebih besar di atas tombol */
+  margin-left: auto;          /* Center tombol secara horizontal */
+  margin-right: auto;         /* Center tombol secara horizontal */
+  text-align: center;         /* Menjaga teks tombol tetap terpusat */
+  width: 200px;               /* Mengatur lebar tombol agar lebih besar dan konsisten */
+}
+
+.reset-btn:hover {
+  background-color: #2980b9;  /* Warna biru gelap saat hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Menambahkan bayangan saat hover */
+}
+
+.reset-btn:active {
+  background-color: #1c5f8f;  /* Warna lebih gelap saat tombol ditekan */
+}
+
+/* Tombol Delete */
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Reset default styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body */
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: #333; /* Dark background */
+  color: white;
+  width: 250px;
+  padding: 30px 20px;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  box-shadow: 3px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.sidebar a {
+  display: block;
+  color: white;
+  padding: 15px;
+  margin: 10px 0;
+  text-decoration: none;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  transition: background-color 0.3s, padding-left 0.3s;
+}
+
+.sidebar a:hover {
+  background-color: #575757;
+  padding-left: 25px; /* Expanding effect on hover */
+}
+
+.sidebar a.active {
+  background-color: #4caf50; /* Highlight active menu */
+}
+
+.sidebar .footer {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Main Content */
+.main-content {
+  margin-left: 250px;
+  padding: 20px;
+  width: 100%;
+  transition: margin-left 0.3s ease;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Form Section */
+.form-section {
+  margin-bottom: 30px;
+}
+
+.form-section label {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.form-section input {
+  width: 80%;
+  padding: 10px;
+  font-size: 1rem;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.form-section button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.form-section button:hover {
+  background-color: #45a049;
+}
+
+/* Penataan Tabel */
+.food-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.food-table th, .food-table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.food-table th {
+  background-color: #f4f4f4;
+}
+
+.food-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Gaya untuk Total Kalori dan Batas Kalori */
+.kalori-peringatan {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.kalori-peringatan h3 {
+  margin: 10px 0;
+}
+
+.kalori-overflow {
+  color: red;
+  font-weight: bold;
+}
+
+/* Total Calories Section */
+.total-calories {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.total-calories h3 {
+  margin-bottom: 10px;
+}
+
+.total-calories span {
+  font-weight: bold;
+}
+
+/* Kalori Warning */
+.kalori-peringatan {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.kalori-peringatan h3 {
+  font-size: 1.2rem;
+}
+
+.kalori-peringatan p {
+  font-size: 1rem;
+  color: green;
+}
+
+/* Responsiveness for Sidebar */
+@media screen and (max-width: 768px) {
+  .sidebar {
+    width: 100%; /* Full width on mobile */
+    position: static; /* Sidebar is static on mobile */
+    height: auto;
+    padding-top: 20px;
+    box-shadow: none; /* Removing shadow for mobile */
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .sidebar a {
+    text-align: center; /* Centering the links */
+    padding: 15px;
+  }
+
+  .sidebar h2 {
+    font-size: 1.5rem; /* Smaller font size for mobile */
+  }
+}

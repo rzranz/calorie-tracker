@@ -1,0 +1,110 @@
+
+
+/* Mengatur tubuh halaman untuk menggunakan flexbox */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center; /* Agar konten tetap di tengah */
+  align-items: flex-start; /* Vertikal mulai dari atas */
+  height: 100vh;
+  background-color: #fff;
+}
+
+/* Konten utama */
+.content-wrapper {
+  width: 100%;
+  max-width: 900px; /* Membatasi lebar konten */
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Style untuk sidebar */
+.sidebar {
+  height: 100%;
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: -250px; /* Awalnya sidebar tersembunyi */
+  background-color: #111;
+  overflow-x: hidden;
+  transition: left 0.5s ease; /* Animasi smooth */
+  padding-top: 60px;
+  z-index: 2; /* Pastikan sidebar tetap di atas konten */
+}
+
+.sidebar a {
+  padding: 8px 16px;
+  text-decoration: none;
+  font-size: 18px;
+  color: white;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidebar a:hover {
+  background-color: #575757;
+}
+
+/* Tombol untuk menampilkan sidebar */
+.sidebar-btn {
+  font-size: 20px;
+  cursor: pointer;
+  color: white;
+  background-color: transparent;
+  border: none;
+  padding: 10px 15px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 3; /* Pastikan tombol di atas sidebar */
+  display: inline-block;
+}
+
+.sidebar-btn:hover {
+  background-color: #575757;
+}
+
+/* Overlay untuk efek latar belakang saat sidebar terbuka */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+  transition: opacity 0.5s ease;
+}
+
+/* Tabel */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+/* Saat sidebar dibuka */
+.sidebar.open {
+  left: 0;
+}
+
+.overlay.open {
+  display: block;
+}
+
+.content-wrapper.sidebar-open {
+  margin-left: 250px; /* Konten bergeser untuk memberi ruang sidebar */
+}

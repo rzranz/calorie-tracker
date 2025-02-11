@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Move</title>
+    <link rel="stylesheet" href="diet.css"> <!-- CSS utama -->
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Menu Bulking</h2>
+        <a href="bulking.php">Beranda</a>
+        <a href="tracker.html">Program Bulking</a>
+        <a href="olahraga.html">Program Exercise</a>
+        <a href="makan_hari_ini.php">Makan Hari Ini</a>
+    </div>
+
+    <div class="container">
+        <h1>Food Calorie Tracker</h1>
+
+        <!-- Form untuk mencari makanan -->
+        <div class="form-section">
+            <label for="food-search">Search Food:</label>
+            <input type="text" id="food-search" placeholder="Enter food name">
+            <button onclick="searchFood()">Search</button>
+
+            <div id="search-results">
+                <!-- Hasil pencarian akan muncul di sini -->
+            </div>
+        </div>
+
+        <!-- Daftar makanan yang dikonsumsi -->
+        <div class="result-section">
+            <h2>Consumed Foods</h2>
+            <table id="foodTable">
+                <thead>
+                    <tr>
+                        <th>Food</th>
+                        <th>Serving Size</th>
+                        <th>Calories</th>
+                        <th>Proteins</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Item makanan akan muncul di sini -->
+                </tbody>
+            </table>
+
+            <div class="total-calories">
+                <h3>Total Calories: <span id="totalCalories">0</span> kcal</h3>
+                <h3>Total Protein: <span id="totalProteins">0</span> g</h3>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/scriptt.js"></script>
+</body>
+
+</html>

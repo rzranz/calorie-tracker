@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Olahraga dan Kalori Terbakar</title>
+  <link rel="stylesheet" href="../css/olahraga.css">
+</head>
+
+<body>
+
+  <div class="sidebar">
+    <h2>Menu Bulking</h2>
+    <a href="bulking.php">Beranda</a>
+    <a href="tracker.html">Program Bulking</a>
+    <a href="olahraga.html">Program Exercise</a>
+    <a href="makan_hari_ini.php">Makan Hari Ini</a>
+  </div>
+
+  <div class="main-content">
+    <h1>Catatan Olahraga dan Kalori Terbakar</h1>
+    <p>Catat olahraga yang dilakukan dan hitung total kalori terbakar berdasarkan jenis dan durasi latihan.</p>
+
+    <section class="olahraga-cards" id="olahraga-cards">
+      <div class="card">
+        <h3>Tambah Olahraga</h3>
+        
+        <!-- Ganti input dengan select untuk jenis olahraga -->
+        <label for="exercise">Jenis Olahraga:</label>
+        <select id="exercise">
+          <option value="Push Up">Push Up</option>
+          <option value="Sit Up">Sit Up</option>
+          <option value="Back Up">Back Up</option>
+          <option value="Lari">Lari</option>
+          <option value="Renang">Renang</option>
+          <option value="Barble">Barble</option>
+        </select>
+
+        <label for="duration">Durasi (menit):</label>
+        <input type="number" id="duration" placeholder="Masukkan durasi">
+
+        <label for="repetitions">Repetisi (jika ada):</label>
+        <input type="number" id="repetitions" placeholder="Masukkan repetisi">
+
+        <button id="addExerciseBtn">Tambah Olahraga</button>
+      </div>
+    </section>
+
+    <section class="total-kalori">
+      <h2>Total Kalori Terbakar</h2>
+      <p id="totalKalori">0 kalori</p>
+    </section>
+  </div>
+
+  <script src="../js/olahraga.js"></script>
+</body>
+
+</html>

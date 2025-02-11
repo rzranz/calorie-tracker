@@ -1,0 +1,166 @@
+/* Reset default styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: #333; /* Dark background */
+  color: white;
+  width: 250px;
+  padding: 30px 20px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: 3px 0px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.sidebar a {
+  display: block;
+  color: white;
+  padding: 15px;
+  margin: 10px 0;
+  text-decoration: none;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, padding-left 0.3s;
+}
+
+.sidebar a:hover {
+  background-color: #575757;  /* Slightly lighter background */
+  padding-left: 25px; /* Expansion effect on hover */
+}
+
+.sidebar a.active {
+  background-color: #4CAF50;  /* Active menu item with green background */
+}
+
+/* Main Content */
+.container {
+  margin-left: 260px; /* Space for sidebar */
+  padding: 30px;
+  width: 100%;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: 100vh;
+  overflow-y: auto;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-section {
+  margin-bottom: 30px;
+}
+
+.form-section label {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.form-section input {
+  width: 80%;
+  padding: 10px;
+  font-size: 1rem;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.form-section button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.form-section button:hover {
+  background-color: #45a049;
+}
+
+.result-section {
+  margin-top: 40px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+table, th, td {
+  border: 1px solid #ddd;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  font-size: 1rem;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.total-calories {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.total-calories h3 {
+  margin-bottom: 10px;
+}
+
+.total-calories span {
+  font-weight: bold;
+}
+
+/* Responsiveness */
+@media screen and (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    position: static;
+    padding-top: 20px;
+  }
+
+  .container {
+    margin-left: 0;
+  }
+
+  .form-section input {
+    width: 70%;
+  }
+
+  /* Align the sidebar links and make them centered on mobile */
+  .sidebar a {
+    text-align: center;
+    padding: 15px;
+  }
+}
