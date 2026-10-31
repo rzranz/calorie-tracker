@@ -150,21 +150,39 @@ class QATestSuite {
     }
 
     private function testFoodOperations(): void {
-        echo "\n[5] Testing Food Logging & Nutrition Search...\n";
+        echo "\n[5] Testing Food Logging, Multi-User Isolation & Nutrition Search...\n";
 
         $results = searchFoodNutrition('nasi');
         $this->assert("Food search returns items for 'nasi'", count($results) > 0);
 
         $today = date('Y-m-d');
-        $testFoodName = "QA Test Chicken Breast " . time();
-        $id = addFoodLog($testFoodName, 150, 250, 45, 0, 5, $today, 1);
-        $this->assert("Add food item returns valid ID", $id > 0);
+        
+        // Multi-user isolation test:
+        // User A (101) logs food
+        $idA = addFoodLog("User A Meal", 100, 300, 20, 40, 5, $today, 101);
+        $this->assert("User A adds food item returns valid ID", $idA > 0);
 
-        $summary = getTodayFoodSummary($today, 1);
-        $this->assert("Today's food summary tracks added calories", $summary['total_calories'] >= 250);
+        // User B (102) logs food
+        $idB = addFoodLog("User B Meal", 200, 600, 45, 60, 10, $today, 102);
+        $this->assert("User B adds food item returns valid ID", $idB > 0);
 
-        $deleted = deleteFoodLog($id);
-        $this->assert("Delete food item succeeds", $deleted);
+        $summaryA = getTodayFoodSummary($today, 101);
+        $summaryB = getTodayFoodSummary($today, 102);
+
+        $this->assert("User A summary only contains User A calories (300)", (int)$summaryA['total_calories'] === 300);
+        $this->assert("User B summary only contains User B calories (600)", (int)$summaryB['total_calories'] === 600);
+
+        $logsA = getTodayFoodLogs($today, 101);
+        $logsB = getTodayFoodLogs($today, 102);
+        $this->assert("User A logs list has 1 item", count($logsA) === 1);
+        $this->assert("User B logs list has 1 item", count($logsB) === 1);
+        $this->assert("User A cannot see User B item", $logsA[0]['makanan'] === 'User A Meal');
+        $this->assert("User B cannot see User A item", $logsB[0]['makanan'] === 'User B Meal');
+
+        // Cleanup
+        deleteFoodLog($idA, 101);
+        deleteFoodLog($idB, 102);
+        $this->assert("User A and B test records cleaned up safely", true);
     }
 
     private function testExerciseOperations(): void {

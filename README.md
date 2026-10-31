@@ -1,44 +1,44 @@
-# Let's Move — Modern Calorie & Fitness Tracker ⚡
+# Let's Move — Modern Calorie & Fitness Tracker
 
 Aplikasi web modern untuk pelacakan kalori (*calorie tracking*), manajemen nutrisi harian, kalkulator BMI & TDEE berbasis algoritma klinis **Mifflin-St Jeor**, pencatatan aktivitas olahraga, serta rekomendasi latihan dan menu makanan terarah untuk 3 program: **Diet**, **Workout / Fitness**, dan **Bulking**.
 
-Didesain ulang dengan alur baru yang **bersih, intuitif, dan ramah pemula** (*beginner-friendly*), arsitektur bersih (*Clean Architecture*), dual-database otomatis (SQLite *zero-config* & MySQL), dan antarmuka responsif *developer-grade*.
+Didesain ulang dengan alur baru yang **bersih, intuitif, dan ramah pemula** (*beginner-friendly*), arsitektur bersih (*Clean Service Architecture*), dual-database otomatis (SQLite *zero-config* & MySQL), dan antarmuka responsif *developer-grade* tanpa dekorasi stiker atau emoji template.
 
 ---
 
-## 🧭 Alur Aplikasi Baru (Beginner-Friendly Flow)
+## Alur Pengguna (Beginner-Friendly Flow)
 
 ```
 [Selamat Datang / Login] 
-        │ (Cukup Email & Password / 1-Click Demo)
+        │ (Cukup Email & Password / Masuk Cepat Akun Demo)
         ▼
 [Kalkulator BMI & Onboarding]
-        │ (Input Berat, Tinggi, Usia, Gender, Aktivitas)
-        │ (Hitung Otomatis: BMI, BMR, TDEE)
+        │ (Input Parameter: Berat, Tinggi, Usia, Gender, Aktivitas)
+        │ (Kalkulasi Otomatis: BMI, BMR, TDEE)
         ▼
 [Pilih Sasaran Program]
-        ├── 🥑 Program Diet (Defisit Kalori -450 kcal)
-        ├── 🏃 Program Workout (Maintenance & Stamina TDEE)
-        └── 💪 Program Bulking (Surplus Anabolik +400 kcal)
+        ├── Program Diet (Defisit Kalori -450 kcal)
+        ├── Program Workout (Maintenance & Kebugaran TDEE)
+        └── Program Bulking (Surplus Anabolik +400 kcal)
         │
         ▼
 [Dashboard Terpersonalisasi]
         ├── Status Kalori Harian & Budget Meter (Net Calories)
-        ├── 🥗 Saran Menu Makanan Akurat (+ 1-Click Catat)
-        ├── 🏋️ Rekomendasi Olahraga & Bakar Kalori (+ 1-Click Catat)
-        ├── 🔍 Pencari Makanan Instan (CalorieNinjas + Katalog Lokal)
-        ├── 📝 Pencatat Olahraga & Makanan Mandiri
-        └── 📈 Grafik Tren Progres Berat Badan & BMI (Chart.js)
+        ├── Saran Menu Makanan Akurat (+ 1-Click Catat)
+        ├── Rekomendasi Olahraga & Pembakaran (+ 1-Click Catat)
+        ├── Pencari Makanan Instan (CalorieNinjas + Katalog Lokal)
+        ├── Pencatat Olahraga & Makanan Mandiri
+        └── Grafik Tren Progres Berat Badan & BMI (Chart.js)
 ```
 
 ---
 
-## ✨ Fitur Utama
+## Fitur Utama
 
-1. **Autentikasi Simpel (Email & Password)**:
-   - Halaman Selamat Datang yang bersih dan terfokus.
+1. **Autentikasi Minimalis (Email & Password)**:
+   - Halaman Selamat Datang yang bersih, fokus, dan bebas gangguan.
    - Pendaftaran dan login akun hanya membutuhkan **Email dan Password**.
-   - Dilengkapi tombol **1-Click Login Akun Demo** untuk pengujian dan evaluasi instan.
+   - Dilengkapi tombol **Masuk Langsung (Akun Demo)** untuk pengujian dan evaluasi instan.
 
 2. **Kalkulator BMI, BMR & TDEE Presisi**:
    - Menghitung Indeks Massa Tubuh (BMI) dan kategori berat badan (Kurus, Ideal, Gemuk, Obesitas).
@@ -47,46 +47,50 @@ Didesain ulang dengan alur baru yang **bersih, intuitif, dan ramah pemula** (*be
    - Memberikan rekomendasi program kebugaran yang paling cocok.
 
 3. **Tiga Pilihan Program yang Menyesuaikan Dashboard**:
-   - **🥑 Program Diet / Fat Loss**: Target defisit kalori aman (-450 kcal/hari), saran menu padat gizi rendah kalori, dan jadwal kardio/HIIT pembakar lemak.
-   - **🏃 Program Workout / Fitness (Maintenance)**: Target kalori seimbang (TDEE), saran nutrisi penopang stamina, dan latihan *functional fitness*.
-   - **💪 Program Bulking / Hipertrofi**: Target surplus kalori anabolik (+400 kcal/hari), target protein tinggi (1.8–2.2g/kg BB), dan jadwal latihan beban progresif (*Push, Pull, Legs*).
-   - Fitur **Ganti Program Kapan Saja** langsung dari navigasi atas tanpa kehilangan data riwayat.
+   - **Program Diet / Fat Loss**: Target defisit kalori terukur (-450 kcal/hari), saran menu padat gizi rendah kalori, dan jadwal kardio pembakar lemak.
+   - **Program Workout / Fitness (Maintenance)**: Target kalori seimbang (TDEE), saran nutrisi penopang stamina, dan latihan *functional fitness*.
+   - **Program Bulking / Hipertrofi**: Target surplus kalori anabolik (+400 kcal/hari), target protein tinggi (1.8–2.2g/kg BB), dan jadwal latihan beban progresif.
+   - Fitur **Ganti Program Kapan Saja** langsung dari dashboard tanpa kehilangan riwayat pencatatan.
 
 4. **Saran Makanan & Olahraga dengan Fitur "+ Catat Langsung"**:
-   - Setiap program menyediakan 5 rekomendasi makanan lengkap dengan gramatur, kalori, protein, karbohidrat, dan lemak.
+   - Setiap program menyediakan rekomendasi makanan lengkap dengan gramatur, kalori, protein, karbohidrat, dan lemak.
    - Setiap program menyediakan rekomendasi latihan dengan estimasi kalori terbakar.
-   - Cukup klik tombol **+ Catat** pada saran yang diinginkan, data akan langsung masuk ke tabel konsumsi atau latihan hari ini!
+   - Cukup klik tombol **+ Catat** pada saran yang diinginkan, data langsung tersimpan ke jurnal harian secara real-time.
 
 5. **Pencarian Nutrisi Makanan Cepat & Fleksibel**:
    - Terintegrasi dengan **CalorieNinjas API** untuk database makanan internasional.
-   - Dilengkapi katalog *offline fallback* kuliner Indonesia (Nasi Putih, Dada Ayam, Tempe, Tahu, Telur, Rendang, dll.).
+   - Dilengkapi katalog *offline fallback* kuliner lokal (Nasi Putih, Dada Ayam, Tempe, Tahu, Telur, Rendang, dll.).
    - Fitur **Tambah Makanan Manual (Custom Meal)** untuk resep atau menu rumahan.
 
 6. **Catatan Olahraga & Pengurangan Kalori Bersih**:
    - Catat latihan berdasarkan durasi (menit) atau repetisi (*reps*).
    - Preset kalori terstandar: *Push Up, Sit Up, Pull Up, Squat, Lari/Jogging, Bersepeda, Berenang, Angkat Beban/Gym, Lompat Tali, HIIT Cardio, dan Jalan Kaki*.
-   - Data olahraga memotong kalori harian secara otomatis: $\text{Kalori Bersih} = \text{Kalori Masuk} - \text{Kalori Terbakar}$.
+   - Data olahraga memotong kalori harian secara otomatis: Net Calories = Kalori Masuk - Kalori Terbakar.
 
 7. **Grafik & Analisis Tren Visual (Chart.js)**:
    - Visualisasi grafik interaktif perkembangan berat badan dan fluktuasi skor BMI dari waktu ke waktu.
 
 ---
 
-## 🛠️ Arsitektur & Teknologi
+## Arsitektur & Pola Desain (Clean Code)
 
-- **Backend**: Native PHP 8.x / PHP 7.4 (Clean Service Architecture, Zero Heavy Framework Boilerplate).
+- **Backend**: Native PHP 8.x / PHP 7.4 mengadopsi Service Pattern:
+  - `AuthService`: Manajemen registrasi, verifikasi password hash, dan sesi.
+  - `FitnessService`: Kalkulasi fisiologis (BMI, BMR Mifflin-St Jeor, TDEE, makro, dan kurasi rekomendasi).
+  - `NutritionService`: Pencarian nutrisi hybrid, pencatatan jurnal makanan per pengguna, dan rekap harian.
+  - `WorkoutService`: Perhitungan MET kalori terbakar, pencatatan sesi latihan, dan rekap aktivitas.
 - **Database Layer**: Dual-Driver via PHP PDO:
   - **SQLite (Default)**: Berjalan otomatis *zero-config* (`data/calorie_tracker.sqlite`).
   - **MySQL (Opsional)**: Mendukung koneksi MySQL/MariaDB konvensional (Laragon, XAMPP, VPS).
-  - **Auto-Migration & Auto-Seeding**: Pembuatan tabel (`users`, `beratbadan`, `hitung_makanan`, `olahraga_log`) dan akun demo secara otomatis saat aplikasi dijalankan.
-- **Frontend**:
-  - CSS kustom (*Modern Design System*) dengan token CSS variables, palet warna gelap berkelas (*Developer Aesthetic*), dan tipografi *Plus Jakarta Sans* & *JetBrains Mono*.
-  - Notifikasi *Toast* non-intrusif (menggantikan `window.alert` bawaan browser).
+  - **Auto-Migration & Auto-Seeding**: Pembuatan skema tabel dan kolom secara otomatis saat aplikasi dijalankan.
+- **Frontend Design System**:
+  - Mengikuti standar *Anti-Slop UI*: bebas stiker emoji yang kekanak-kanakan, menggunakan tipografi modern (*Plus Jakarta Sans* & *JetBrains Mono* untuk tabular figures), palet OLED matte gelap, dan double-bezel cards.
+  - Notifikasi *Toast* non-intrusif.
   - Grafik tren interaktif dengan **Chart.js**.
 
 ---
 
-## 🚀 Cara Menjalankan Aplikasi
+## Cara Menjalankan Aplikasi
 
 ### Metode 1: PHP Built-in Server (Paling Cepat — Zero Config)
 Buka Terminal / PowerShell di folder proyek ini:
@@ -95,7 +99,7 @@ Buka Terminal / PowerShell di folder proyek ini:
 php -S localhost:8000
 ```
 Buka browser Anda dan akses:
-👉 **`http://localhost:8000`**
+**`http://localhost:8000`**
 
 *Aplikasi akan menampilkan halaman selamat datang. Anda dapat login dengan akun demo (1-klik) atau mendaftar akun baru.*
 
@@ -104,7 +108,7 @@ Buka browser Anda dan akses:
 ### Akun Demo Bawaan:
 - **Email**: `demo@calorietracker.com`
 - **Password**: `password123`
-- Atau cukup klik tombol **🚀 Coba Masuk Instan (Akun Demo)** di halaman login!
+- Atau cukup klik tombol **Masuk Langsung (Akun Demo)** di halaman login.
 
 ---
 

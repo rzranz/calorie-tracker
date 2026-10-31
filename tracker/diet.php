@@ -5,15 +5,17 @@
 
 require_once __DIR__ . '/../includes/functions.php';
 
+$user = requireAuth();
+$userId = (int)$user['id_user'];
+
 $activeTab = 'diet';
 $pageTitle = "Program Diet & Fat Loss • Let's Move";
 
-$latestLog = getLatestWeightLog();
-$weight = $latestLog ? (float)$latestLog['berat'] : 80;
-$height = $latestLog ? (float)$latestLog['tinggi'] : 175;
-$bmi = $latestLog ? (float)$latestLog['bmi'] : 26.1;
+$weight = (float)($user['berat'] > 0 ? $user['berat'] : 80);
+$height = (float)($user['tinggi'] > 0 ? $user['tinggi'] : 175);
+$bmi = (float)($user['bmi'] > 0 ? $user['bmi'] : 26.1);
 $cat = getBMICategory($bmi);
-$targetKalori = $latestLog ? (int)$latestLog['kalori_harian'] : 1900;
+$targetKalori = (int)($user['target_kalori'] > 0 ? $user['target_kalori'] : 1900);
 
 include __DIR__ . '/../includes/header.php';
 ?>
@@ -22,7 +24,7 @@ include __DIR__ . '/../includes/header.php';
     <!-- Page Header -->
     <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
         <div>
-            <h1 class="page-title">🥑 Program Diet & Fat Loss Sehat</h1>
+            <h1 class="page-title">Program Diet & Fat Loss Sehat</h1>
             <p class="page-subtitle">Metode defisit kalori berbasis bukti ilmiah untuk memangkas lemak tubuh tanpa mengorbankan metabolisme.</p>
         </div>
         <div style="display: flex; gap: 10px;">
@@ -56,7 +58,7 @@ include __DIR__ . '/../includes/header.php';
         <!-- Core Diet Principles -->
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">📌 5 Strategi Utama Program Diet</h2>
+                <h2 class="card-title">5 Strategi Utama Program Diet</h2>
             </div>
             <ul style="list-style: none; display: flex; flex-direction: column; gap: 16px;">
                 <li style="display: flex; gap: 14px; align-items: flex-start;">
@@ -112,34 +114,34 @@ include __DIR__ . '/../includes/header.php';
             <!-- Latest Weight Record -->
             <div class="card" style="margin-bottom: 24px;">
                 <div class="card-header">
-                    <h2 class="card-title">📊 Status Fisik Terkini Anda</h2>
+                    <h2 class="card-title">Status Fisik Terkini</h2>
                     <span class="badge <?= $cat['badge'] ?>"><?= htmlspecialchars($cat['title']) ?></span>
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; text-align: center;">
                     <div style="background: var(--bg-surface-elevated); padding: 14px; border-radius: var(--radius-md);">
                         <span style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Berat Saat Ini</span>
-                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main);"><?= number_format($weight, 1) ?> kg</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); font-family: var(--font-mono);"><?= number_format($weight, 1) ?> kg</div>
                     </div>
                     <div style="background: var(--bg-surface-elevated); padding: 14px; border-radius: var(--radius-md);">
                         <span style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Skor BMI</span>
-                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-cyan);"><?= number_format($bmi, 2) ?></div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-cyan); font-family: var(--font-mono);"><?= number_format($bmi, 2) ?></div>
                     </div>
                     <div style="background: var(--bg-surface-elevated); padding: 14px; border-radius: var(--radius-md);">
                         <span style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Target Kalori</span>
-                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-primary);"><?= number_format($targetKalori) ?> kcal</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-primary); font-family: var(--font-mono);"><?= number_format($targetKalori) ?> kcal</div>
                     </div>
                 </div>
 
                 <div style="background: var(--bg-surface); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); font-size: 0.88rem; color: var(--text-muted);">
-                    💡 Target penurunan berat badan yang aman dan berkelanjutan adalah <strong>0.5 - 1.0 kg per minggu</strong>.
+                    Target penurunan berat badan yang aman dan berkelanjutan adalah <strong>0.5 - 1.0 kg per minggu</strong>.
                 </div>
             </div>
 
             <!-- Example Diet Meal Plan -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">🥗 Rekomendasi Menu Diet Sehari-hari</h2>
+                    <h2 class="card-title">Rekomendasi Menu Diet Sehari-hari</h2>
                     <span class="badge badge-blue">Low Calorie Dense</span>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">

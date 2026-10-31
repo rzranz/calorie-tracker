@@ -1,14 +1,14 @@
 <?php
 /**
  * Tailored Personalized Dashboard
- * Dynamically customizes layout, recommendations, and goals based on user program (Diet, Workout, or Bulking).
+ * Clean Architecture & Anti-Slop Interface (Linear / Vercel Aesthetic).
  */
 
 require_once __DIR__ . '/includes/functions.php';
 
 $user = requireAuth();
 
-// If user hasn't set up BMI/metrics yet, redirect to onboarding setup
+// If user hasn't completed onboarding/metrics yet, redirect
 if (empty($user['berat']) || empty($user['tinggi'])) {
     header("Location: setup.php");
     exit();
@@ -21,9 +21,9 @@ if (isset($_GET['switch'])) {
     $valid = ['diet', 'workout', 'bulking'];
     $newProgram = strtolower(trim($_GET['switch']));
     if (in_array($newProgram, $valid)) {
-        $bmr = calculateBMR((float)$user['berat'], (float)$user['tinggi'], (int)$user['usia'], $user['gender']);
-        $tdee = calculateTDEE($bmr, $user['aktivitas']);
-        $newTarget = calculateCalorieTarget($tdee, $newProgram);
+        $bmr = FitnessService::calculateBMR((float)$user['berat'], (float)$user['tinggi'], (int)$user['usia'], $user['gender']);
+        $tdee = FitnessService::calculateTDEE($bmr, $user['aktivitas']);
+        $newTarget = FitnessService::calculateCalorieTarget($tdee, $newProgram);
 
         $db = getDb();
         $db->prepare("UPDATE users SET program = :p, target_kalori = :t WHERE id_user = :uid")
@@ -39,14 +39,14 @@ $targetKalori = (int)$user['target_kalori'];
 $weight = (float)$user['berat'];
 $height = (float)$user['tinggi'];
 $bmi = (float)$user['bmi'];
-$cat = getBMICategory($bmi);
-$macros = calculateMacros($weight, $targetKalori, $program);
+$cat = FitnessService::getBMICategory($bmi);
+$macros = FitnessService::calculateMacros($weight, $targetKalori, $program);
 
 // Today's summary data
-$todayFood = getTodayFoodSummary(null, $userId);
-$todayExercise = getTodayExerciseSummary(null, $userId);
-$todayFoodItems = getTodayFoodLogs(null, $userId);
-$todayExerciseItems = getTodayExerciseLogs(null, $userId);
+$todayFood = NutritionService::getTodayFoodSummary(null, $userId);
+$todayExercise = WorkoutService::getTodayExerciseSummary(null, $userId);
+$todayFoodItems = NutritionService::getTodayFoodLogs(null, $userId);
+$todayExerciseItems = WorkoutService::getTodayExerciseLogs(null, $userId);
 
 $kaloriMasuk = $todayFood['total_calories'];
 $kaloriTerbakar = $todayExercise['total_burned'];
@@ -55,44 +55,41 @@ $persenKalori = ($targetKalori > 0) ? min(100, round(($kaloriBersih / $targetKal
 $isOverflow = ($kaloriBersih > $targetKalori);
 
 // Curated Recommendations for active program
-$mealRecommendations = getMealRecommendations($program);
-$workoutRecommendations = getWorkoutRecommendations($program);
+$mealRecommendations = FitnessService::getMealRecommendations($program);
+$workoutRecommendations = FitnessService::getWorkoutRecommendations($program);
 
-// Program Theme Customization
+// Program Metadata (Clean typography & colors)
 $programMeta = [
     'diet' => [
-        'title'        => 'Program Diet & Fat Loss',
-        'icon'         => '🥑',
+        'title'        => 'Diet & Fat Loss',
         'badge'        => 'badge-blue',
         'color'        => '#06b6d4',
-        'goal_desc'    => 'Defisit Kalori Terencana (-450 kcal)',
-        'subtitle'     => 'Fokus defisit kalori moderat untuk membakar simpanan lemak tubuh tanpa mengorbankan metabolisme & massa otot.',
-        'target_badge' => 'DEFISIT KALORI'
+        'goal_desc'    => 'Defisit Terencana (-450 kcal)',
+        'subtitle'     => 'Fokus defisit kalori moderat untuk mobilisasi lemak tubuh secara konsisten tanpa mengorbankan massa otot.',
+        'target_badge' => 'Defisit Kalori'
     ],
     'workout' => [
-        'title'        => 'Program Workout & Kebugaran',
-        'icon'         => '🏃',
+        'title'        => 'Workout & Maintenance',
         'badge'        => 'badge-emerald',
         'color'        => '#10b981',
-        'goal_desc'    => 'Keseimbangan Energi Harian (Maintenance)',
-        'subtitle'     => 'Fokus menjaga berat badan stabil, memperkuat stamina kardiovaskular, dan mengencangkan otot fungsional.',
-        'target_badge' => 'MAINTENANCE'
+        'goal_desc'    => 'Keseimbangan Energi (TDEE)',
+        'subtitle'     => 'Fokus stabilitas berat badan, peningkatan kapasitas aerobik, kelenturan, dan kebugaran fungsional.',
+        'target_badge' => 'Pemeliharaan'
     ],
     'bulking' => [
-        'title'        => 'Program Bulking & Hipertrofi',
-        'icon'         => '💪',
+        'title'        => 'Hypertrophy & Bulking',
         'badge'        => 'badge-purple',
         'color'        => '#8b5cf6',
-        'goal_desc'    => 'Surplus Kalori Terkontrol (+400 kcal)',
-        'subtitle'     => 'Fokus lingkungan anabolik dengan surplus kalori bersih dan asupan protein tinggi untuk menambah massa otot baru.',
-        'target_badge' => 'SURPLUS ANABOLIK'
+        'goal_desc'    => 'Surplus Terkendali (+400 kcal)',
+        'subtitle'     => 'Fokus sintesis protein maksimal dengan surplus energi bersih dan latihan beban terstruktur.',
+        'target_badge' => 'Surplus Anabolik'
     ]
 ];
 
 $activeMeta = $programMeta[$program] ?? $programMeta['bulking'];
 
 // Weight History for Chart
-$history = getWeightHistory(15, $userId);
+$history = FitnessService::getWeightHistory(15, $userId);
 $chartHistory = array_reverse($history);
 $chartLabels = [];
 $chartWeights = [];
@@ -109,78 +106,76 @@ foreach ($chartHistory as $row) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($activeMeta['title']) ?> • Let's Move</title>
+    <title><?= htmlspecialchars($activeMeta['title']) ?> — Let's Move</title>
     <link rel="stylesheet" href="css/modern.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-    <!-- Clean Topbar Navigation -->
+    <!-- Minimalist Top Navigation -->
     <header class="navbar">
         <div class="app-container navbar-inner">
             <div style="display: flex; align-items: center; gap: 14px;">
                 <a href="index.php" class="brand-logo">
-                    <div class="brand-icon">⚡</div>
+                    <span class="brand-mark">LM</span>
                     <span>Let's Move</span>
                 </a>
-                <!-- Active Program Badge -->
-                <span class="badge" style="background: rgba(255, 255, 255, 0.08); border-color: <?= $activeMeta['color'] ?>; color: var(--text-main); font-size: 0.8rem; padding: 5px 12px;">
-                    <?= $activeMeta['icon'] ?> <?= htmlspecialchars($activeMeta['title']) ?>
+                <span class="badge" style="background: rgba(255, 255, 255, 0.05); border-color: <?= $activeMeta['color'] ?>; color: var(--text-main);">
+                    <?= htmlspecialchars($activeMeta['title']) ?>
                 </span>
             </div>
 
-            <!-- Program Selector & Profile Actions -->
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <!-- Quick Program Dropdown / Switcher -->
-                <div style="display: flex; gap: 6px; background: var(--bg-surface-elevated); padding: 3px; border-radius: var(--radius-md);">
-                    <a href="index.php?switch=diet" style="padding: 5px 10px; border-radius: var(--radius-sm); font-size: 0.8rem; text-decoration: none; font-weight: 600; <?= ($program === 'diet') ? 'background: #06b6d4; color: #0b0f19;' : 'color: var(--text-muted);' ?>">
-                        🥑 Diet
+            <!-- Program Selector & Navigation -->
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 4px; background: var(--bg-surface-elevated); padding: 3px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                    <a href="index.php?switch=diet" style="padding: 4px 10px; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 600; text-decoration: none; <?= ($program === 'diet') ? 'background: #06b6d4; color: #080c14;' : 'color: var(--text-muted);' ?>">
+                        Diet
                     </a>
-                    <a href="index.php?switch=workout" style="padding: 5px 10px; border-radius: var(--radius-sm); font-size: 0.8rem; text-decoration: none; font-weight: 600; <?= ($program === 'workout') ? 'background: #10b981; color: #0b0f19;' : 'color: var(--text-muted);' ?>">
-                        🏃 Workout
+                    <a href="index.php?switch=workout" style="padding: 4px 10px; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 600; text-decoration: none; <?= ($program === 'workout') ? 'background: #10b981; color: #080c14;' : 'color: var(--text-muted);' ?>">
+                        Workout
                     </a>
-                    <a href="index.php?switch=bulking" style="padding: 5px 10px; border-radius: var(--radius-sm); font-size: 0.8rem; text-decoration: none; font-weight: 600; <?= ($program === 'bulking') ? 'background: #8b5cf6; color: #ffffff;' : 'color: var(--text-muted);' ?>">
-                        💪 Bulking
+                    <a href="index.php?switch=bulking" style="padding: 4px 10px; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 600; text-decoration: none; <?= ($program === 'bulking') ? 'background: #8b5cf6; color: #ffffff;' : 'color: var(--text-muted);' ?>">
+                        Bulking
                     </a>
                 </div>
 
-                <a href="setup.php" class="btn btn-secondary btn-sm" title="Ubah Berat/Tinggi Badan">
-                    ⚖️ Hitung Ulang BMI
+                <a href="setup.php" class="btn btn-secondary btn-sm" title="Ubah parameter fisik">
+                    Kalkulator BMI
                 </a>
 
                 <a href="logout.php" class="btn btn-secondary btn-sm" style="color: #fda4af;" title="Keluar dari akun">
-                    🚪 Keluar
+                    Keluar
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Toast Notification Container -->
+    <!-- Global Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <main class="app-container" style="padding-top: 28px; padding-bottom: 60px;">
+    <main class="app-container" style="padding-top: 24px; padding-bottom: 50px;">
         
-        <!-- Welcome & Program Hero Banner -->
-        <div class="card" style="margin-bottom: 24px; border-left: 5px solid <?= $activeMeta['color'] ?>; padding: 24px 28px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <!-- Header Info Surface -->
+        <div class="card" style="margin-bottom: 20px; border-left: 3px solid <?= $activeMeta['color'] ?>; padding: 20px 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
                 <div>
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                        <span style="font-size: 0.82rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">DASHBOARD PRIBADI</span>
-                        <span class="badge" style="background: rgba(255,255,255,0.06); color: <?= $activeMeta['color'] ?>; font-weight: 700;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                        <span style="font-size: 0.74rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--font-mono);">DASHBOARD AKTIF</span>
+                        <span class="badge" style="color: <?= $activeMeta['color'] ?>; border-color: rgba(255,255,255,0.08);">
                             <?= $activeMeta['target_badge'] ?>
                         </span>
                     </div>
-                    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">
-                        Halo, <?= htmlspecialchars($user['nama'] ?: explode('@', $user['email'])[0]) ?>! <?= $activeMeta['icon'] ?>
+                    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px; letter-spacing: -0.02em;">
+                        <?= htmlspecialchars($user['nama'] ?: explode('@', $user['email'])[0]) ?>
                     </h1>
-                    <p style="color: var(--text-muted); font-size: 0.92rem; max-width: 720px; line-height: 1.5;">
+                    <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 680px; line-height: 1.5;">
                         <?= htmlspecialchars($activeMeta['subtitle']) ?>
                     </p>
                 </div>
 
-                <div style="text-align: right; background: var(--bg-surface-elevated); padding: 14px 20px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
-                    <span style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Kondisi Fisik Saat Ini</span>
-                    <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-top: 2px;">
+                <div style="text-align: right; background: var(--bg-surface-elevated); padding: 12px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                    <span style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-family: var(--font-mono);">METRIK FISIK</span>
+                    <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-top: 1px; font-family: var(--font-mono);">
                         <?= $weight ?> kg • <?= $height ?> cm
                     </div>
                     <div style="margin-top: 4px;">
@@ -192,38 +187,31 @@ foreach ($chartHistory as $row) {
 
         <!-- KPI Metrics Grid -->
         <div class="stats-grid">
-            <!-- Target Kalori -->
-            <div class="stat-card" style="--accent-gradient: linear-gradient(90deg, <?= $activeMeta['color'] ?>, #06b6d4);">
-                <span class="stat-label">
-                    <span>Target Harian</span>
-                    <span class="badge" style="color: <?= $activeMeta['color'] ?>;"><?= strtoupper($program) ?></span>
-                </span>
+            <div class="stat-card">
+                <span class="stat-label">Target Harian</span>
                 <div class="stat-value">
                     <?= number_format($targetKalori) ?><span class="stat-unit">kcal</span>
                 </div>
                 <div class="stat-meta"><?= htmlspecialchars($activeMeta['goal_desc']) ?></div>
             </div>
 
-            <!-- Kalori Masuk (Makanan) -->
-            <div class="stat-card card-amber">
-                <span class="stat-label">Kalori Masuk (Makanan)</span>
-                <div class="stat-value">
+            <div class="stat-card">
+                <span class="stat-label">Kalori Masuk</span>
+                <div class="stat-value" style="color: #fbbf24;">
                     <?= number_format($kaloriMasuk, 1) ?><span class="stat-unit">kcal</span>
                 </div>
                 <div class="stat-meta"><?= $todayFood['item_count'] ?> porsi tercatat hari ini</div>
             </div>
 
-            <!-- Kalori Terbakar (Olahraga) -->
-            <div class="stat-card card-rose">
-                <span class="stat-label">Kalori Terbakar (Olahraga)</span>
-                <div class="stat-value">
+            <div class="stat-card">
+                <span class="stat-label">Kalori Terbakar</span>
+                <div class="stat-value" style="color: #fb7185;">
                     <?= number_format($kaloriTerbakar, 1) ?><span class="stat-unit">kcal</span>
                 </div>
                 <div class="stat-meta"><?= $todayExercise['workout_count'] ?> sesi latihan dicatat</div>
             </div>
 
-            <!-- Kalori Bersih (Net) -->
-            <div class="stat-card <?= $isOverflow ? 'card-rose' : 'card-blue' ?>">
+            <div class="stat-card">
                 <span class="stat-label">
                     <span>Kalori Bersih (Net)</span>
                     <?php if ($isOverflow): ?>
@@ -232,35 +220,34 @@ foreach ($chartHistory as $row) {
                         <span class="badge badge-emerald">ON TRACK</span>
                     <?php endif; ?>
                 </span>
-                <div class="stat-value">
+                <div class="stat-value" style="color: <?= $isOverflow ? '#fb7185' : 'var(--text-main)' ?>;">
                     <?= number_format($kaloriBersih, 1) ?><span class="stat-unit">kcal</span>
                 </div>
                 <div class="stat-meta">
-                    <?= ($targetKalori - $kaloriBersih >= 0) ? (number_format($targetKalori - $kaloriBersih, 1) . ' kcal tersisa') : (number_format($kaloriBersih - $targetKalori, 1) . ' kcal melebihi batas') ?>
+                    <?= ($targetKalori - $kaloriBersih >= 0) ? (number_format($targetKalori - $kaloriBersih, 1) . ' kcal tersisa') : (number_format($kaloriBersih - $targetKalori, 1) . ' kcal melebihi target') ?>
                 </div>
             </div>
 
-            <!-- Protein Hari Ini -->
             <div class="stat-card">
                 <span class="stat-label">Protein Hari Ini</span>
-                <div class="stat-value">
+                <div class="stat-value" style="color: #60a5fa;">
                     <?= number_format($todayFood['total_protein'], 1) ?><span class="stat-unit">/ <?= $macros['protein_g'] ?>g</span>
                 </div>
-                <div class="stat-meta">Target: <?= $macros['protein_g'] ?>g untuk berat <?= $weight ?>kg</div>
+                <div class="stat-meta">Target minimum <?= $macros['protein_g'] ?>g/hari</div>
             </div>
         </div>
 
-        <!-- Visual Progress Bar -->
-        <div class="card" style="margin-bottom: 28px; padding: 20px 24px;">
+        <!-- Budget Progress Bar -->
+        <div class="card" style="margin-bottom: 24px; padding: 18px 22px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <strong style="font-size: 0.95rem;">Budget Kalori Harian</strong>
-                    <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 8px;">
+                    <span style="font-size: 0.88rem; font-weight: 600; color: var(--text-main);">Anggaran Kalori Bersih</span>
+                    <span style="color: var(--text-muted); font-size: 0.82rem; margin-left: 8px;">
                         <?= number_format($kaloriBersih, 1) ?> dari <?= number_format($targetKalori) ?> kcal (<?= $persenKalori ?>%)
                     </span>
                 </div>
                 <span class="badge <?= $isOverflow ? 'badge-rose' : 'badge-emerald' ?>">
-                    <?= $isOverflow ? '⚠️ Melebihi Target' : '✓ Aman Terkendali' ?>
+                    <?= $isOverflow ? 'Melebihi Target' : 'Dalam Batas Aman' ?>
                 </span>
             </div>
             <div class="progress-bar-container">
@@ -268,36 +255,35 @@ foreach ($chartHistory as $row) {
             </div>
         </div>
 
-        <!-- SECTION 1: SARAN MAKANAN & SARAN LATIHAN SPESIFIK -->
-        <div style="margin-bottom: 32px;">
-            <div style="margin-bottom: 16px;">
-                <span class="badge" style="background: rgba(255,255,255,0.06); color: <?= $activeMeta['color'] ?>;">REKOMENDASI AKURAT KHUSUS <?= strtoupper($program) ?></span>
-                <h2 style="font-size: 1.45rem; font-weight: 800; margin-top: 4px;">Saran Menu Makanan & Latihan untuk Anda</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Klik tombol <strong>+ Catat Langsung</strong> untuk memasukkan rekomendasi ke catatan harian Anda tanpa perlu mengetik ulang.</p>
+        <!-- SECTION 1: SARAN MAKANAN & LATIHAN SPESIFIK -->
+        <div style="margin-bottom: 28px;">
+            <div style="margin-bottom: 14px;">
+                <h2 style="font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;">Rekomendasi Menu & Latihan</h2>
+                <p style="color: var(--text-muted); font-size: 0.86rem;">Pilih rekomendasi yang disesuaikan dengan sasaran Anda untuk dicatat secara langsung.</p>
             </div>
 
             <div class="layout-2col">
                 <!-- Saran Makanan -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title" style="font-size: 1.12rem;">
-                            🥗 Rekomendasi Menu <?= htmlspecialchars($activeMeta['title']) ?>
-                        </h3>
+                        <h3 class="card-title">Menu Nutrisi Pilihan</h3>
+                        <span class="badge badge-neutral"><?= strtoupper($program) ?></span>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
                         <?php foreach ($mealRecommendations as $meal): ?>
-                            <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                            <div style="background: var(--bg-card-inner); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
                                 <div>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <strong style="font-size: 0.95rem; color: var(--text-main);"><?= htmlspecialchars($meal['name']) ?></strong>
-                                        <span class="badge badge-secondary" style="font-size: 0.7rem;"><?= htmlspecialchars($meal['tag']) ?></span>
+                                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">
+                                        <?= htmlspecialchars($meal['name']) ?>
                                     </div>
-                                    <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 3px;">
-                                        Porsi: <?= htmlspecialchars($meal['portion']) ?> • <span style="color: var(--color-primary); font-weight: 700;"><?= $meal['calories'] ?> kcal</span> • <span style="color: var(--color-cyan); font-weight: 600;">Prot: <?= $meal['protein'] ?>g</span>
+                                    <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px;">
+                                        <span class="pill-metric"><?= htmlspecialchars($meal['portion']) ?></span>
+                                        <span class="pill-metric" style="color: var(--color-primary); font-weight: 600;"><?= $meal['calories'] ?> kcal</span>
+                                        <span class="pill-metric" style="color: #60a5fa;">Prot: <?= $meal['protein'] ?>g</span>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-primary btn-sm" onclick="quickAddMeal('<?= addslashes($meal['name']) ?>', 100, <?= $meal['calories'] ?>, <?= $meal['protein'] ?>, <?= $meal['carbs'] ?>, <?= $meal['fat'] ?>)">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="handleQuickAddMeal('<?= addslashes($meal['name']) ?>', 100, <?= $meal['calories'] ?>, <?= $meal['protein'] ?>, <?= $meal['carbs'] ?>, <?= $meal['fat'] ?>)">
                                     + Catat
                                 </button>
                             </div>
@@ -308,25 +294,24 @@ foreach ($chartHistory as $row) {
                 <!-- Saran Latihan Olahraga -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title" style="font-size: 1.12rem;">
-                            🏋️ Rekomendasi Sesi Olahraga
-                        </h3>
+                        <h3 class="card-title">Sesi Latihan Terarah</h3>
+                        <span class="badge badge-neutral"><?= strtoupper($program) ?></span>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
                         <?php foreach ($workoutRecommendations as $work): ?>
-                            <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                            <div style="background: var(--bg-card-inner); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
                                 <div>
-                                    <strong style="font-size: 0.95rem; color: var(--text-main);"><?= htmlspecialchars($work['name']) ?></strong>
-                                    <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 3px;">
-                                        Target: <strong><?= htmlspecialchars($work['target']) ?></strong> • Intensitas: <?= htmlspecialchars($work['intensity']) ?>
+                                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">
+                                        <?= htmlspecialchars($work['name']) ?>
                                     </div>
-                                    <div style="font-size: 0.8rem; color: var(--color-rose); font-weight: 600; margin-top: 2px;">
-                                        🔥 Estimasi Terbakar: ~<?= $work['burn'] ?> kcal
+                                    <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px;">
+                                        <span class="pill-metric"><?= htmlspecialchars($work['target']) ?></span>
+                                        <span class="pill-metric" style="color: #fb7185; font-weight: 600;">-<?= $work['burn'] ?> kcal</span>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="quickAddWorkout('<?= addslashes($work['name']) ?>', 30, 0, <?= $work['burn'] ?>)">
-                                    + Catat Latihan
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="handleQuickAddWorkout('<?= addslashes($work['name']) ?>', 30, 0, <?= $work['burn'] ?>)">
+                                    + Catat
                                 </button>
                             </div>
                         <?php endforeach; ?>
@@ -336,41 +321,38 @@ foreach ($chartHistory as $row) {
         </div>
 
         <!-- SECTION 2: PENCATAT MAKANAN & OLAHRAGA MANDIRI -->
-        <div style="margin-bottom: 32px;">
-            <div style="margin-bottom: 16px;">
-                <span class="badge badge-emerald">INPUT FLEKSIBEL</span>
-                <h2 style="font-size: 1.45rem; font-weight: 800; margin-top: 4px;">Pencatat Mandiri (Makanan & Olahraga)</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Cari makanan bebas atau catat sesi olahraga yang Anda lakukan secara mandiri.</p>
+        <div style="margin-bottom: 28px;">
+            <div style="margin-bottom: 14px;">
+                <h2 style="font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;">Pencatatan Mandiri</h2>
+                <p style="color: var(--text-muted); font-size: 0.86rem;">Pencarian nutrisi langsung melalui CalorieNinjas API atau input resep custom.</p>
             </div>
 
             <div class="layout-2col">
-                <!-- Food Search & Custom Food -->
+                <!-- Food Search -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title" style="font-size: 1.1rem;">🔍 Cari Nutrisi Makanan Bebas</h3>
-                        <span class="badge badge-blue">CalorieNinjas API</span>
+                        <h3 class="card-title">Cari Database Makanan</h3>
+                        <span class="badge badge-blue">API Nutrisi</span>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="food-search">Ketik Nama Makanan / Minuman</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="food-search" class="form-control" placeholder="Contoh: telur rebus, banana, ayam panggang, nasi..." autocomplete="off">
+                        <label class="form-label" for="food-search">Nama Bahan / Makanan</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="food-search" class="form-control" placeholder="Ketik misal: telur rebus, banana, dada ayam..." autocomplete="off">
                             <button type="button" class="btn btn-primary" onclick="searchFood()">Cari</button>
                         </div>
                     </div>
 
-                    <!-- Search Results -->
-                    <div id="search-results" style="margin-top: 14px;"></div>
+                    <div id="search-results" style="margin-top: 10px;"></div>
 
-                    <!-- Custom Food Collapse / Accordion -->
-                    <details style="margin-top: 18px; border-top: 1px solid var(--border-subtle); padding-top: 14px;">
-                        <summary style="font-size: 0.88rem; font-weight: 600; color: var(--color-primary); cursor: pointer;">
-                            + Atau Tambah Makanan Manual (Porsi Custom)
+                    <details style="margin-top: 14px; border-top: 1px solid var(--border-subtle); padding-top: 12px;">
+                        <summary style="font-size: 0.84rem; font-weight: 600; color: var(--color-primary); cursor: pointer;">
+                            + Tambah Makanan Manual (Porsi Custom)
                         </summary>
-                        <form id="manualFoodForm" onsubmit="handleManualFoodSubmit(event)" style="margin-top: 14px;">
+                        <form id="manualFoodForm" onsubmit="handleManualFoodForm(event)" style="margin-top: 12px;">
                             <div class="form-group">
                                 <label class="form-label">Nama Makanan</label>
-                                <input type="text" id="manualName" class="form-control" placeholder="Contoh: Soto Ayam Tanpa Santan" required>
+                                <input type="text" id="manualName" class="form-control" placeholder="Contoh: Nasi Liwet Gurih" required>
                             </div>
                             <div class="form-grid-2">
                                 <div class="form-group">
@@ -379,20 +361,20 @@ foreach ($chartHistory as $row) {
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Kalori (kcal)</label>
-                                    <input type="number" step="0.1" id="manualCalories" class="form-control" placeholder="Contoh: 180" required>
+                                    <input type="number" step="0.1" id="manualCalories" class="form-control" placeholder="180" required>
                                 </div>
                             </div>
                             <div class="form-grid-2">
                                 <div class="form-group">
                                     <label class="form-label">Protein (g)</label>
-                                    <input type="number" step="0.1" id="manualProtein" class="form-control" placeholder="Contoh: 15" value="0">
+                                    <input type="number" step="0.1" id="manualProtein" class="form-control" value="0">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Karbohidrat (g)</label>
-                                    <input type="number" step="0.1" id="manualCarbs" class="form-control" placeholder="Contoh: 20" value="0">
+                                    <input type="number" step="0.1" id="manualCarbs" class="form-control" value="0">
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-secondary btn-block">Simpan Makanan Manual</button>
+                            <button type="submit" class="btn btn-secondary btn-block">Simpan Makanan</button>
                         </form>
                     </details>
                 </div>
@@ -400,22 +382,22 @@ foreach ($chartHistory as $row) {
                 <!-- Custom Workout Logger -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title" style="font-size: 1.1rem;">🏋️ Catat Olahraga yang Baru Selesai</h3>
+                        <h3 class="card-title">Catat Aktivitas Latihan</h3>
                     </div>
 
-                    <form id="workoutLogForm" onsubmit="handleWorkoutSubmit(event)">
+                    <form id="workoutLogForm" onsubmit="handleWorkoutForm(event)">
                         <div class="form-group">
                             <label class="form-label" for="exName">Jenis Olahraga</label>
                             <select id="exName" class="form-control">
-                                <optgroup label="Latihan Kardio (Berdasarkan Menit)">
+                                <optgroup label="Kardio & Durasi">
                                     <option value="Lari (Jogging)">Lari / Jogging (10.0 kcal/menit)</option>
                                     <option value="Bersepeda">Bersepeda (8.5 kcal/menit)</option>
                                     <option value="Renang">Renang (9.0 kcal/menit)</option>
                                     <option value="Lompat Tali">Lompat Tali / Skipping (11.0 kcal/menit)</option>
-                                    <option value="HIIT Cardio">HIIT Workout (12.0 kcal/menit)</option>
-                                    <option value="Jalan Kaki">Jalan Santai (4.0 kcal/menit)</option>
+                                    <option value="HIIT Cardio">HIIT Cardio (12.0 kcal/menit)</option>
+                                    <option value="Jalan Kaki">Jalan Kaki (4.0 kcal/menit)</option>
                                 </optgroup>
-                                <optgroup label="Latihan Repetisi & Beban">
+                                <optgroup label="Beban & Repetisi">
                                     <option value="Angkat Beban">Angkat Beban / Gym (6.5 kcal/menit)</option>
                                     <option value="Push Up">Push Up (0.45 kcal/rep)</option>
                                     <option value="Sit Up">Sit Up (0.40 kcal/rep)</option>
@@ -436,8 +418,8 @@ foreach ($chartHistory as $row) {
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">
-                            + Simpan Catatan Olahraga
+                        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 8px;">
+                            + Simpan Catatan Latihan
                         </button>
                     </form>
                 </div>
@@ -445,17 +427,15 @@ foreach ($chartHistory as $row) {
         </div>
 
         <!-- SECTION 3: TABEL DATA MAKANAN & OLAHRAGA HARI INI -->
-        <div class="layout-2col" style="margin-bottom: 32px;">
+        <div class="layout-2col" style="margin-bottom: 28px;">
             <!-- Tabel Makanan Hari Ini -->
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title" style="font-size: 1.15rem;">
-                        🍽️ Konsumsi Makanan Hari Ini
-                    </h3>
+                    <h3 class="card-title">Jurnal Makanan Hari Ini</h3>
                     <?php if (!empty($todayFoodItems)): ?>
                         <form action="tracker/hapussemuamakanan.php" method="POST" onsubmit="return confirm('Reset semua catatan makanan hari ini?');">
-                            <button type="submit" class="btn btn-secondary btn-sm" style="font-size: 0.78rem;">
-                                🔄 Reset Hari Ini
+                            <button type="submit" class="btn btn-secondary btn-sm" style="font-size: 0.74rem;">
+                                Reset Hari Ini
                             </button>
                         </form>
                     <?php endif; ?>
@@ -478,10 +458,10 @@ foreach ($chartHistory as $row) {
                                     <tr>
                                         <td><strong><?= htmlspecialchars($f['makanan']) ?></strong></td>
                                         <td><?= number_format((float)$f['berat'], 0) ?> g</td>
-                                        <td><span style="color: var(--color-primary); font-weight: 700;"><?= number_format((float)$f['kalori'], 1) ?></span> kcal</td>
-                                        <td><?= number_format((float)$f['protein'], 1) ?> g</td>
+                                        <td><span style="color: var(--color-primary); font-weight: 600; font-family: var(--font-mono);"><?= number_format((float)$f['kalori'], 1) ?></span> kcal</td>
+                                        <td><span style="font-family: var(--font-mono);"><?= number_format((float)$f['protein'], 1) ?></span> g</td>
                                         <td>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteFood(<?= $f['id_hitung'] ?>, this)">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteFood(<?= $f['id_hitung'] ?>)">
                                                 Hapus
                                             </button>
                                         </td>
@@ -491,9 +471,8 @@ foreach ($chartHistory as $row) {
                         </table>
                     </div>
                 <?php else: ?>
-                    <div style="text-align: center; padding: 28px 16px; color: var(--text-muted);">
-                        <p>Belum ada makanan yang dicatat hari ini.</p>
-                        <p style="font-size: 0.82rem; margin-top: 4px;">Pilih salah satu saran menu di atas atau gunakan kolom pencarian.</p>
+                    <div style="text-align: center; padding: 24px 16px; color: var(--text-dim); font-size: 0.88rem;">
+                        Belum ada makanan yang dicatat hari ini. Gunakan kolom pencarian atau klik salah satu rekomendasi di atas.
                     </div>
                 <?php endif; ?>
             </div>
@@ -501,10 +480,8 @@ foreach ($chartHistory as $row) {
             <!-- Tabel Olahraga Hari Ini -->
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title" style="font-size: 1.15rem;">
-                        🔥 Latihan & Pembakaran Hari Ini
-                    </h3>
-                    <span class="badge badge-rose"><?= number_format($kaloriTerbakar, 1) ?> kcal terbakar</span>
+                    <h3 class="card-title">Jurnal Latihan Hari Ini</h3>
+                    <span class="badge badge-rose"><?= number_format($kaloriTerbakar, 1) ?> kcal</span>
                 </div>
 
                 <?php if (!empty($todayExerciseItems)): ?>
@@ -512,7 +489,7 @@ foreach ($chartHistory as $row) {
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Olahraga</th>
+                                    <th>Aktivitas</th>
                                     <th>Durasi / Reps</th>
                                     <th>Terbakar</th>
                                     <th>Aksi</th>
@@ -531,9 +508,9 @@ foreach ($chartHistory as $row) {
                                                 -
                                             <?php endif; ?>
                                         </td>
-                                        <td><span style="color: var(--color-rose); font-weight: 700;">-<?= number_format((float)$e['kalori_terbakar'], 1) ?></span> kcal</td>
+                                        <td><span style="color: #fb7185; font-weight: 600; font-family: var(--font-mono);">-<?= number_format((float)$e['kalori_terbakar'], 1) ?></span> kcal</td>
                                         <td>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteExercise(<?= $e['id_olahraga'] ?>, this)">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteWorkout(<?= $e['id_olahraga'] ?>)">
                                                 Hapus
                                             </button>
                                         </td>
@@ -543,9 +520,8 @@ foreach ($chartHistory as $row) {
                         </table>
                     </div>
                 <?php else: ?>
-                    <div style="text-align: center; padding: 28px 16px; color: var(--text-muted);">
-                        <p>Belum ada latihan yang dicatat hari ini.</p>
-                        <p style="font-size: 0.82rem; margin-top: 4px;">Pilih salah satu rekomendasi latihan atau catat latihan mandiri di atas.</p>
+                    <div style="text-align: center; padding: 24px 16px; color: var(--text-dim); font-size: 0.88rem;">
+                        Belum ada aktivitas fisik yang dicatat hari ini.
                     </div>
                 <?php endif; ?>
             </div>
@@ -554,10 +530,10 @@ foreach ($chartHistory as $row) {
         <!-- SECTION 4: GRAFIK ANALITIK RIWAYAT BERAT BADAN -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">📈 Tren Progres Berat Badan & BMI Anda</h3>
-                <span class="badge badge-emerald">Analytics</span>
+                <h3 class="card-title">Tren Berat Badan & BMI</h3>
+                <span class="badge badge-neutral">Riwayat Pengukuran</span>
             </div>
-            <div style="position: relative; height: 260px; width: 100%;">
+            <div style="position: relative; height: 240px; width: 100%;">
                 <canvas id="weightChart"></canvas>
             </div>
         </div>
@@ -566,67 +542,53 @@ foreach ($chartHistory as $row) {
 
     <footer class="footer">
         <div class="app-container">
-            <p><strong>Let's Move</strong> — Calorie Tracker & Fitness Management System.</p>
+            <p>Let's Move — Clean Architecture Fitness & Calorie Management System</p>
         </div>
     </footer>
 
-    <!-- Scripts -->
+    <!-- Client Script -->
     <script src="js/scriptt.js"></script>
     <script>
-    // 1-Click Quick Add Meal from Recommendation
-    async function quickAddMeal(name, serving, cal, prot, carbs, fat) {
+    // Quick Add Meal from Curated Recommendations
+    async function handleQuickAddMeal(name, serving, cal, prot, carbs, fat) {
         try {
-            const res = await fetch('api/food.php?action=add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: name,
-                    serving_size: serving,
-                    calories: cal,
-                    protein: prot,
-                    carbohydrates: carbs,
-                    fat: fat
-                })
+            const res = await CalorieTrackerApp.addFood({
+                name: name,
+                serving_size: serving,
+                calories: cal,
+                protein: prot,
+                carbohydrates: carbs,
+                fat: fat
             });
-            const data = await res.json();
-            if (data.success) {
-                showToast(`"${name}" berhasil ditambahkan ke catatan hari ini!`, 'success');
-                setTimeout(() => window.location.reload(), 600);
-            } else {
-                showToast(data.error || 'Gagal menambahkan makanan.', 'error');
+            if (res.success) {
+                showToast(`"${name}" berhasil ditambahkan.`, 'success');
+                setTimeout(() => window.location.reload(), 450);
             }
         } catch (e) {
-            showToast('Koneksi terganggu.', 'error');
+            showToast(e.message || 'Gagal menambahkan makanan.', 'error');
         }
     }
 
-    // 1-Click Quick Add Workout from Recommendation
-    async function quickAddWorkout(name, duration, reps, burned) {
+    // Quick Add Workout from Curated Recommendations
+    async function handleQuickAddWorkout(name, duration, reps, burned) {
         try {
-            const res = await fetch('api/exercise.php?action=add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: name,
-                    duration: duration,
-                    repetitions: reps,
-                    calories_burned: burned
-                })
+            const res = await CalorieTrackerApp.addWorkout({
+                name: name,
+                duration: duration,
+                repetitions: reps,
+                calories_burned: burned
             });
-            const data = await res.json();
-            if (data.success) {
-                showToast(`Latihan "${name}" berhasil dicatat!`, 'success');
-                setTimeout(() => window.location.reload(), 600);
-            } else {
-                showToast(data.error || 'Gagal mencatat latihan.', 'error');
+            if (res.success) {
+                showToast(`Latihan "${name}" berhasil dicatat.`, 'success');
+                setTimeout(() => window.location.reload(), 450);
             }
         } catch (e) {
-            showToast('Koneksi terganggu.', 'error');
+            showToast(e.message || 'Gagal mencatat latihan.', 'error');
         }
     }
 
-    // Manual Food Form
-    async function handleManualFoodSubmit(e) {
+    // Manual Food Form Handler
+    async function handleManualFoodForm(e) {
         e.preventDefault();
         const name = document.getElementById('manualName').value.trim();
         const serving = parseFloat(document.getElementById('manualServing').value) || 100;
@@ -634,55 +596,52 @@ foreach ($chartHistory as $row) {
         const prot = parseFloat(document.getElementById('manualProtein').value) || 0;
         const carbs = parseFloat(document.getElementById('manualCarbs').value) || 0;
 
-        await quickAddMeal(name, serving, cal, prot, carbs, 0);
+        await handleQuickAddMeal(name, serving, cal, prot, carbs, 0);
     }
 
-    // Manual Workout Form
-    async function handleWorkoutSubmit(e) {
+    // Workout Form Handler
+    async function handleWorkoutForm(e) {
         e.preventDefault();
         const name = document.getElementById('exName').value;
         const duration = parseFloat(document.getElementById('exDuration').value) || 0;
         const reps = parseInt(document.getElementById('exReps').value) || 0;
 
         if (duration <= 0 && reps <= 0) {
-            alert('Harap masukkan durasi (menit) atau jumlah repetisi latihan.');
+            showToast('Masukkan durasi (menit) atau jumlah repetisi latihan.', 'error');
             return;
         }
 
-        await quickAddWorkout(name, duration, reps, 0);
+        await handleQuickAddWorkout(name, duration, reps, 0);
     }
 
-    // Delete Food Row
-    async function deleteFood(id, btn) {
+    // Delete Handlers
+    async function handleDeleteFood(id) {
         if (!confirm('Hapus item makanan ini?')) return;
         try {
-            const res = await fetch('api/food.php?action=delete&id=' + id, { method: 'POST' });
-            const data = await res.json();
-            if (data.success) {
-                showToast('Makanan dihapus.', 'success');
-                setTimeout(() => window.location.reload(), 500);
+            const res = await CalorieTrackerApp.deleteFood(id);
+            if (res.success) {
+                showToast('Item berhasil dihapus.', 'success');
+                setTimeout(() => window.location.reload(), 400);
             }
         } catch (e) {
-            showToast('Gagal menghapus.', 'error');
+            showToast('Gagal menghapus item.', 'error');
         }
     }
 
-    // Delete Workout Row
-    async function deleteExercise(id, btn) {
+    async function handleDeleteWorkout(id) {
         if (!confirm('Hapus catatan latihan ini?')) return;
         try {
-            const res = await fetch('api/exercise.php?action=delete&id=' + id, { method: 'POST' });
-            const data = await res.json();
-            if (data.success) {
-                showToast('Catatan latihan dihapus.', 'success');
-                setTimeout(() => window.location.reload(), 500);
+            const res = await CalorieTrackerApp.deleteWorkout(id);
+            if (res.success) {
+                showToast('Catatan berhasil dihapus.', 'success');
+                setTimeout(() => window.location.reload(), 400);
             }
         } catch (e) {
-            showToast('Gagal menghapus.', 'error');
+            showToast('Gagal menghapus catatan.', 'error');
         }
     }
 
-    // Render Progress Chart
+    // Render Progress Analytics Chart
     document.addEventListener('DOMContentLoaded', () => {
         const ctx = document.getElementById('weightChart');
         if (!ctx) return;
@@ -700,23 +659,23 @@ foreach ($chartHistory as $row) {
                         label: 'Berat Badan (kg)',
                         data: weights.length ? weights : [<?= $weight ?>],
                         borderColor: '<?= $activeMeta['color'] ?>',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.08)',
                         fill: true,
-                        tension: 0.35,
-                        borderWidth: 2.5,
+                        tension: 0.3,
+                        borderWidth: 2,
                         pointBackgroundColor: '<?= $activeMeta['color'] ?>',
-                        pointRadius: 4,
+                        pointRadius: 3,
                         yAxisID: 'y'
                     },
                     {
                         label: 'BMI',
                         data: bmis.length ? bmis : [<?= $bmi ?>],
-                        borderColor: '#06b6d4',
-                        borderDash: [4, 4],
-                        borderWidth: 2,
-                        tension: 0.35,
-                        pointRadius: 3,
-                        pointBackgroundColor: '#06b6d4',
+                        borderColor: '#64748b',
+                        borderDash: [3, 3],
+                        borderWidth: 1.5,
+                        tension: 0.3,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#64748b',
                         yAxisID: 'y1'
                     }
                 ]
@@ -725,32 +684,16 @@ foreach ($chartHistory as $row) {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 12 } } }
+                    legend: { labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 11 } } }
                 },
                 scales: {
-                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b' } },
-                    y: { type: 'linear', display: true, position: 'left', grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#10b981' } },
-                    y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#06b6d4' } }
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#64748b', font: { size: 11 } } },
+                    y: { type: 'linear', display: true, position: 'left', grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 11 } } },
+                    y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 11 } } }
                 }
             }
         });
     });
-
-    // Global Toast Function
-    function showToast(message, type = 'success') {
-        const container = document.getElementById('toastContainer');
-        if (!container) return;
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.innerHTML = `<span>${type === 'success' ? '✓' : '⚠️'}</span> <span>${message}</span>`;
-        container.appendChild(toast);
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(10px)';
-            toast.style.transition = 'all 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
     </script>
 
 </body>

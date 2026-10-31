@@ -30,7 +30,7 @@ $rootPath = $isSubdir ? '../' : './';
         <div class="app-container navbar-inner">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <a href="<?= $rootPath ?>index.php" class="brand-logo">
-                    <div class="brand-icon">⚡</div>
+                    <span class="brand-mark">LM</span>
                     <span>Let's Move</span>
                 </a>
                 <?php if ($currentUser && !empty($currentUser['program'])): ?>
@@ -47,28 +47,28 @@ $rootPath = $isSubdir ? '../' : './';
             <ul class="nav-links" id="mainNavLinks">
                 <li>
                     <a href="<?= $rootPath ?>index.php" class="nav-link <?= ($activeTab === 'dashboard') ? 'active' : '' ?>">
-                        📊 Dashboard
+                        Dashboard
                     </a>
                 </li>
                 <li>
                     <a href="<?= $rootPath ?>setup.php" class="nav-link <?= ($activeTab === 'setup') ? 'active' : '' ?>">
-                        ⚖️ Kalkulator BMI & Program
+                        Kalkulator BMI
                     </a>
                 </li>
                 <li>
                     <a href="<?= $rootPath ?>tracker/makan_hari_ini.php" class="nav-link <?= ($activeTab === 'food') ? 'active' : '' ?>">
-                        🥗 Makan Hari Ini
+                        Catatan Makan
                     </a>
                 </li>
                 <li>
                     <a href="<?= $rootPath ?>tracker/olahraga.html" class="nav-link <?= ($activeTab === 'exercise') ? 'active' : '' ?>">
-                        🏋️ Olahraga
+                        Olahraga
                     </a>
                 </li>
                 <?php if ($currentUser): ?>
                     <li>
                         <a href="<?= $rootPath ?>logout.php" class="nav-link" style="color: #fda4af;">
-                            🚪 Keluar (<?= htmlspecialchars(explode('@', $currentUser['email'])[0]) ?>)
+                            Keluar (<?= htmlspecialchars(explode('@', $currentUser['email'])[0]) ?>)
                         </a>
                     </li>
                 <?php else: ?>

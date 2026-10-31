@@ -1,6 +1,7 @@
 <?php
 /**
  * Food Nutrition API Endpoint
+ * Handles search, add, delete, and summary requests.
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -10,7 +11,12 @@ $user = getCurrentUser();
 $userId = $user ? (int)$user['id_user'] : 1;
 
 $action = $_GET['action'] ?? ($_POST['action'] ?? '');
-$input = json_decode(file_get_contents('php://input'), true) ?? [];
+$rawInput = file_get_contents('php://input');
+$input = json_decode($rawInput, true);
+if (!is_array($input)) {
+    $input = [];
+}
+
 if (!empty($input['action'])) {
     $action = $input['action'];
 }
@@ -18,8 +24,8 @@ if (!empty($input['action'])) {
 try {
     switch ($action) {
         case 'search':
-            $query = trim($_GET['q'] ?? ($input['q'] ?? ''));
-            $items = searchFoodNutrition($query);
+            $query = trim($_GET['q'] ?? ($input['q'] ?? ($_POST['q'] ?? '')));
+            $items = NutritionService::searchNutrition($query);
             echo json_encode([
                 'success' => true,
                 'query'   => $query,
@@ -33,7 +39,7 @@ try {
             $servingSize = (float)($_POST['serving_size'] ?? ($input['serving_size'] ?? 100));
             $calories = (float)($_POST['calories'] ?? ($input['calories'] ?? 0));
             $protein = (float)($_POST['protein'] ?? ($input['protein'] ?? 0));
-            $carbs = (float)($_POST['carbohydrates'] ?? ($input['carbohydrates'] ?? ($input['carbs'] ?? 0)));
+            $carbs = (float)($_POST['carbohydrates'] ?? ($input['carbohydrates'] ?? ($_POST['carbs'] ?? ($input['carbs'] ?? 0))));
             $fat = (float)($_POST['fat'] ?? ($input['fat'] ?? 0));
             $date = trim($_POST['date'] ?? ($input['date'] ?? date('Y-m-d')));
 
@@ -43,13 +49,23 @@ try {
                 exit;
             }
 
-            $id = addFoodLog($name, $servingSize, $calories, $protein, $carbs, $fat, $date, $userId);
-            $summary = getTodayFoodSummary($date, $userId);
+            $id = NutritionService::addFoodLog($name, $servingSize, $calories, $protein, $carbs, $fat, $date, $userId);
+            $summary = NutritionService::getTodayFoodSummary($date, $userId);
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Makanan berhasil ditambahkan.',
+                'message' => 'Makanan berhasil dicatat ke jurnal harian.',
                 'id'      => $id,
+                'item'    => [
+                    'id_hitung'    => $id,
+                    'makanan'      => $name,
+                    'berat'        => $servingSize,
+                    'kalori'       => $calories,
+                    'protein'      => $protein,
+                    'karbohidrat'  => $carbs,
+                    'lemak'        => $fat,
+                    'tanggal'      => $date
+                ],
                 'summary' => $summary
             ]);
             break;
@@ -62,8 +78,8 @@ try {
                 exit;
             }
 
-            $deleted = deleteFoodLog($id);
-            $summary = getTodayFoodSummary(null, $userId);
+            $deleted = NutritionService::deleteFoodLog($id, $userId);
+            $summary = NutritionService::getTodayFoodSummary(null, $userId);
 
             echo json_encode([
                 'success' => $deleted,
@@ -74,8 +90,8 @@ try {
 
         case 'reset':
             $date = trim($_POST['date'] ?? ($input['date'] ?? date('Y-m-d')));
-            $reset = resetTodayFoodLogs($date, $userId);
-            $summary = getTodayFoodSummary($date, $userId);
+            $reset = NutritionService::resetTodayFoodLogs($date, $userId);
+            $summary = NutritionService::getTodayFoodSummary($date, $userId);
 
             echo json_encode([
                 'success' => $reset,
@@ -87,8 +103,8 @@ try {
         case 'today':
         default:
             $date = trim($_GET['date'] ?? date('Y-m-d'));
-            $items = getTodayFoodLogs($date, $userId);
-            $summary = getTodayFoodSummary($date, $userId);
+            $items = NutritionService::getTodayFoodLogs($date, $userId);
+            $summary = NutritionService::getTodayFoodSummary($date, $userId);
 
             echo json_encode([
                 'success' => true,

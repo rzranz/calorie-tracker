@@ -84,8 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div style="width: 100%; max-width: 440px; margin: auto;">
         <!-- Brand Header -->
         <div style="text-align: center; margin-bottom: 28px;">
-            <div style="width: 52px; height: 52px; background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 24px rgba(16, 185, 129, 0.4); margin-bottom: 14px; font-size: 1.5rem; color: #fff;">
-                ⚡
+            <div style="width: 44px; height: 44px; background: var(--bg-surface-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-md); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; font-family: var(--font-mono); font-size: 1rem; font-weight: 800; color: var(--color-primary); box-shadow: var(--shadow-sm);">
+                LM
             </div>
             <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.03em; margin-bottom: 6px;">
                 Selamat Datang di Let's Move
@@ -108,8 +108,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <?php if (!empty($error)): ?>
-                <div style="background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #fda4af; padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 18px; font-size: 0.88rem;">
-                    ⚠️ <?= htmlspecialchars($error) ?>
+                <div style="background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.35); color: #fda4af; padding: 12px 16px; border-radius: var(--radius-sm); margin-bottom: 18px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-weight: 700; color: #f43f5e;">•</span>
+                    <span><?= htmlspecialchars($error) ?></span>
                 </div>
             <?php endif; ?>
 
@@ -162,11 +163,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <form method="POST" action="login.php">
                         <input type="hidden" name="auth_action" value="demo">
                         <button type="submit" class="btn btn-secondary btn-block" style="font-size: 0.88rem;">
-                            🚀 Coba Masuk Instan (Akun Demo)
+                            Masuk Langsung (Akun Demo)
                         </button>
                     </form>
                     <span style="font-size: 0.78rem; color: var(--text-dim); margin-top: 8px; display: block;">
-                        Klik untuk mencoba langsung tanpa perlu mengisi form pendaftaran.
+                        Klik untuk evaluasi langsung tanpa perlu mengisi form pendaftaran.
                     </span>
                 </div>
             <?php endif; ?>
@@ -179,3 +180,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
+

@@ -46,7 +46,7 @@ function renderExerciseCard(exercise, duration, repetitions, caloriesBurned, id 
     <div class="exercise-info">
       <h3>${exercise}</h3>
       ${detailsHtml}
-      <p class="burned-badge">🔥 Terbakar: <strong>${caloriesBurned.toFixed(1)}</strong> kcal</p>
+      <p class="burned-badge">Terbakar: <strong>${caloriesBurned.toFixed(1)}</strong> kcal</p>
     </div>
     ${id ? `<button class="btn-delete-card" onclick="deleteExercise(${id}, this, ${caloriesBurned})" title="Hapus">×</button>` : ''}
   `;

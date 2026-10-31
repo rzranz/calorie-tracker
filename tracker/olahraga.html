@@ -10,16 +10,16 @@
     <header class="navbar">
         <div class="app-container navbar-inner">
             <a href="../index.php" class="brand-logo">
-                <div class="brand-icon">⚡</div>
+                <span class="brand-mark">LM</span>
                 <span>Let's Move</span>
-                <span class="brand-badge">Workout</span>
+                <span class="badge badge-neutral">Workout</span>
             </a>
             <ul class="nav-links">
-                <li><a href="../index.php" class="nav-link">📊 Dashboard</a></li>
-                <li><a href="makan_hari_ini.php" class="nav-link">🥗 Makan Hari Ini</a></li>
-                <li><a href="olahraga.html" class="nav-link active">🏋️ Catatan Olahraga</a></li>
-                <li><a href="bulking.php" class="nav-link">💪 Program Bulking</a></li>
-                <li><a href="diet.php" class="nav-link">🥑 Program Diet</a></li>
+                <li><a href="../index.php" class="nav-link">Dashboard</a></li>
+                <li><a href="makan_hari_ini.php" class="nav-link">Catatan Makan</a></li>
+                <li><a href="olahraga.html" class="nav-link active">Catatan Olahraga</a></li>
+                <li><a href="bulking.php" class="nav-link">Program Bulking</a></li>
+                <li><a href="diet.php" class="nav-link">Program Diet</a></li>
             </ul>
         </div>
     </header>
@@ -27,7 +27,7 @@
     <main class="app-container" style="padding-top: 28px; padding-bottom: 50px;">
         <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
             <div>
-                <h1 class="page-title">🏋️ Catatan Olahraga & Kalori Terbakar</h1>
+                <h1 class="page-title">Catatan Olahraga & Kalori Terbakar</h1>
                 <p class="page-subtitle">Catat aktivitas fisik harian Anda. Kalori yang terbakar akan langsung memotong kalori bersih pada dashboard.</p>
             </div>
             <div>
@@ -40,7 +40,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
                     <span class="stat-label">TOTAL KALORI TERBAKAR HARI INI</span>
-                    <div style="font-size: 2rem; font-weight: 800; color: var(--color-rose);" id="totalKalori">
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--color-rose); font-family: var(--font-mono);" id="totalKalori">
                         0.0 kalori
                     </div>
                 </div>
@@ -99,7 +99,7 @@
             <!-- List of Workouts Today -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title" style="font-size: 1.15rem;">📋 Daftar Latihan Hari Ini</h2>
+                    <h2 class="card-title" style="font-size: 1.15rem;">Daftar Latihan Hari Ini</h2>
                     <span class="badge badge-emerald">Tersimpan Otomatis</span>
                 </div>
 
@@ -142,6 +142,7 @@
             margin-top: 8px;
             color: var(--color-rose) !important;
             font-weight: 600;
+            font-family: var(--font-mono);
         }
         .btn-delete-card {
             background: none;

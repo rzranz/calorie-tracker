@@ -2,94 +2,14 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diet Food Calorie Tracker • Let's Move</title>
+    <meta http-equiv="refresh" content="0; url=diet.php">
+    <title>Mengalihkan ke Program Diet... • Let's Move</title>
     <link rel="stylesheet" href="../css/modern.css">
+    <script>
+        window.location.replace("diet.php");
+    </script>
 </head>
-<body>
-    <header class="navbar">
-        <div class="app-container navbar-inner">
-            <a href="../index.php" class="brand-logo">
-                <div class="brand-icon">⚡</div>
-                <span>Let's Move</span>
-                <span class="brand-badge" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; border-color: rgba(6, 182, 212, 0.3);">Diet</span>
-            </a>
-            <ul class="nav-links">
-                <li><a href="../index.php" class="nav-link">📊 Dashboard</a></li>
-                <li><a href="makan_hari_ini.php" class="nav-link active">🥗 Makan Hari Ini</a></li>
-                <li><a href="olahraga.html" class="nav-link">🏋️ Catatan Olahraga</a></li>
-                <li><a href="diet.php" class="nav-link">🥑 Program Diet</a></li>
-                <li><a href="bulking.php" class="nav-link">💪 Program Bulking</a></li>
-            </ul>
-        </div>
-    </header>
-
-    <main class="app-container" style="padding-top: 28px; padding-bottom: 50px;">
-        <div class="page-header">
-            <h1 class="page-title">Diet Food Calorie Tracker</h1>
-            <p class="page-subtitle">Pantau asupan kalori defisit dan makronutrisi harian untuk program penurunan lemak.</p>
-        </div>
-
-        <div class="layout-2col">
-            <!-- Search Section -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">🔍 Cari Makanan Diet</h2>
-                    <span class="badge badge-blue">CalorieNinjas</span>
-                </div>
-
-                <div class="form-group">
-                    <label for="food-search" class="form-label">Nama Makanan (Inggris / Indonesia)</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="food-search" class="form-control" placeholder="Contoh: chicken breast, salad, telur rebus..." autocomplete="off">
-                        <button class="btn btn-primary" onclick="searchFood()">Cari</button>
-                    </div>
-                </div>
-
-                <div id="search-results" style="margin-top: 16px;"></div>
-            </div>
-
-            <!-- Consumed Foods Table -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">🍽️ Makanan Ditambahkan</h2>
-                    <a href="makan_hari_ini.php" class="btn btn-secondary btn-sm">Buka Halaman Lengkap →</a>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="data-table" id="foodTable">
-                        <thead>
-                            <tr>
-                                <th>Makanan</th>
-                                <th>Porsi</th>
-                                <th>Kalori</th>
-                                <th>Protein</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
-                    <div>
-                        <span style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase;">Total Kalori Sesi</span>
-                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-primary);"><span id="totalCalories">0.0</span> kcal</div>
-                    </div>
-                    <div>
-                        <span style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase;">Total Protein Sesi</span>
-                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-cyan);"><span id="totalProteins">0.0</span> g</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="footer">
-        <div class="app-container">
-            <p><strong>Let's Move</strong> — Calorie Tracker & Fitness Management System.</p>
-        </div>
-    </footer>
-
-    <script src="../js/scriptt.js"></script>
+<body style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-app); color: var(--text-muted);">
+    <p>Mengalihkan ke panduan program diet... <a href="diet.php" style="color: var(--color-cyan); text-decoration: underline;">Klik di sini jika tidak otomatis beralih</a>.</p>
 </body>
 </html>
