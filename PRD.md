@@ -327,3 +327,4 @@ Berikut adalah rangkuman pencapaian rekayasa perangkat lunak yang siap disalin k
 - **Algoritma Klinis Presisi:** Mengimplementasikan kalkulator energi berbasis metode **Mifflin-St Jeor** dan **TDEE MET**, serta merancang algoritma distribusi makronutrisi gramatur untuk 3 varian program kebugaran.
 - **Desain Frontend Developer-Grade (Anti-Slop):** Mengeliminasi lebih dari 40 elemen stiker emoji murahan, mengadopsi sistem desain bertema gelap OLED, tipografi tabular monospaced, dan interaksi asynchronous berbasis Fetch API dengan notifikasi toast non-intrusif.
 - **Test-Driven QA Reliability:** Membangun automated testing suite mandiri dengan 59 skenario uji (fungsional, keamanan, integritas matematis, dan linting sintaks) dengan tingkat kelulusan 100%.
+

@@ -4,6 +4,12 @@
  * Adheres to Single Responsibility Principle (SRP) and Clean Code design patterns.
  */
 
+if (!ini_get('date.timezone')) {
+    date_default_timezone_set('Asia/Jakarta');
+} else {
+    date_default_timezone_set('Asia/Jakarta');
+}
+
 require_once __DIR__ . '/../config/database.php';
 
 function startUserSession(): void {
