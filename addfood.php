@@ -6,3 +6,4 @@
 
 $_GET['action'] = 'add';
 require_once __DIR__ . '/api/food.php';
+
