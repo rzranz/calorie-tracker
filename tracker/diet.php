@@ -1,98 +1,168 @@
-<!DOCTYPE html>
-<html lang="id">
+<?php
+/**
+ * Diet & Fat Loss Program Guide
+ */
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diet - Program Menurunkan Berat Badan</title>
+require_once __DIR__ . '/../includes/functions.php';
 
-    <!-- Memanggil CSS -->
-    <link rel="stylesheet" href="../css/diet.css"> <!-- CSS utama -->
-</head>
+$activeTab = 'diet';
+$pageTitle = "Program Diet & Fat Loss • Let's Move";
 
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h2>Menu Diet</h2>
-        <a href="diet.php">Beranda</a>
-        <a href="diet.html">Program Diet</a>
-        <a href="makandiet.php">Makan Hari Ini</a>
+$latestLog = getLatestWeightLog();
+$weight = $latestLog ? (float)$latestLog['berat'] : 80;
+$height = $latestLog ? (float)$latestLog['tinggi'] : 175;
+$bmi = $latestLog ? (float)$latestLog['bmi'] : 26.1;
+$cat = getBMICategory($bmi);
+$targetKalori = $latestLog ? (int)$latestLog['kalori_harian'] : 1900;
+
+include __DIR__ . '/../includes/header.php';
+?>
+
+<div class="app-container" style="padding-top: 28px; padding-bottom: 50px;">
+    <!-- Page Header -->
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h1 class="page-title">🥑 Program Diet & Fat Loss Sehat</h1>
+            <p class="page-subtitle">Metode defisit kalori berbasis bukti ilmiah untuk memangkas lemak tubuh tanpa mengorbankan metabolisme.</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="makan_hari_ini.php" class="btn btn-primary btn-sm">+ Catat Makanan Diet</a>
+            <a href="olahraga.html" class="btn btn-secondary btn-sm">+ Catat Olahraga Kardio</a>
+        </div>
     </div>
 
-    <!-- Konten Utama -->
-    <div class="main-content">
-        <section class="program-intro">
-            <div class="card">
-                <h1>Program Diet</h1>
-                <p>Program Diet bertujuan untuk menurunkan berat badan dengan cara yang sehat melalui pengaturan pola makan dan aktivitas fisik yang tepat. Berikut adalah beberapa tips dan rekomendasi untuk memulai program diet Anda:</p>
+    <!-- Hero Card with Diet Photo -->
+    <div class="card" style="margin-bottom: 30px; overflow: hidden; padding: 0;">
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; align-items: center; min-height: 280px;">
+            <div style="padding: 32px 36px;">
+                <span class="badge badge-blue" style="margin-bottom: 12px;">SUSTAINABLE FAT LOSS PROTOCOL</span>
+                <h2 style="font-size: 1.7rem; font-weight: 800; color: var(--text-main); line-height: 1.3; margin-bottom: 12px;">
+                    Defisit Kalori Moderat dengan Nutrisi Padat Gizi
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+                    Diet yang berhasil bukanlah kelaparan ekstrem, melainkan pengaturan defisit energi moderat (300–500 kcal di bawah TDEE) dengan asupan protein tinggi untuk mempertahankan massa otot dan metabolisme tubuh.
+                </p>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="makan_hari_ini.php" class="btn btn-primary btn-sm">Mulai Catat Nutrisi</a>
+                    <a href="../index.php#calculator" class="btn btn-secondary btn-sm">Hitung Ulang TDEE</a>
+                </div>
             </div>
-            <div class="image">
-                <img src="../img/diet.jpg" alt="Program Diet" class="diet-img">
-            </div>
-        </section>
-
-        <section class="program-steps">
-            <div class="card">
-                <h2>Langkah-langkah Program Diet</h2>
-                <ul>
-                    <li><strong>Konsumsi Kalori Lebih Sedikit:</strong> Untuk menurunkan berat badan, Anda perlu mengkonsumsi kalori lebih sedikit daripada yang Anda bakar.</li>
-                    <li><strong>Protein untuk Menjaga Massa Otot:</strong> Protein penting untuk mempertahankan massa otot selama proses penurunan berat badan. Konsumsilah sekitar 1.2-1.6 gram protein per kilogram berat badan per hari.</li>
-                    <li><strong>Karbohidrat dengan Indeks Glikemik Rendah:</strong> Pilih karbohidrat dengan indeks glikemik rendah untuk menjaga kadar gula darah stabil.</li>
-                    <li><strong>Lemak Sehat:</strong> Lemak sehat penting untuk mendukung metabolisme dan keseimbangan hormon. Pilihlah lemak tak jenuh dari sumber seperti alpukat, kacang-kacangan, dan minyak zaitun.</li>
-                    <li><strong>Latihan Kardio:</strong> Lakukan latihan kardio seperti berlari, bersepeda, atau berenang untuk membantu membakar kalori lebih banyak.</li>
-                </ul>
-                <p>Dengan mengikuti program diet yang tepat dan konsisten, Anda akan melihat penurunan berat badan secara bertahap dengan tetap menjaga kesehatan tubuh.</p>
-            </div>
-        </section>
-
-        <section class="data-berat">
-            <h2>Data Berat Badan Hari Ini</h2>
-
-            <?php
-            // Termasuk fungsi untuk mengambil data beratbadan
-            include('function.php');
-
-            // Ambil data beratbadan terbaru
-            $conn = connectDatabase();
-            $query = "SELECT id_beratbadan, berat, tinggi, bmi, kategori, tanggal FROM beratbadan ORDER BY tanggal DESC LIMIT 1";
-            $result = $conn->query($query);
-
-            if ($result->num_rows > 0) {
-                // Tampilkan data dalam tabel
-                echo "<table>
-            <tr>
-                <th>ID</th>
-                <th>Berat (kg)</th>
-                <th>Tinggi (cm)</th>
-                <th>BMI</th>
-                <th>Kategori</th>
-                <th>Tanggal</th>
-            </tr>";
-
-                // Loop untuk menampilkan baris data terbaru
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>
-                <td>" . $row['id_beratbadan'] . "</td>
-                <td>" . $row['berat'] . "</td>
-                <td>" . $row['tinggi'] . "</td>
-                <td>" . number_format($row['bmi'], 2) . "</td>
-                <td>" . $row['kategori'] . "</td>
-                <td>" . $row['tanggal'] . "</td>
-            </tr>";
-                }
-
-                echo "</table>";
-            } else {
-                echo "<p>Tidak ada data yang ditemukan untuk hari ini.</p>";
-            }
-
-            // Menutup koneksi
-            $conn->close();
-            ?>
-
-        </section>
+            <div style="height: 100%; min-height: 240px; background: url('../img/diet.jpg') center/cover no-repeat; border-left: 1px solid var(--border-subtle);"></div>
+        </div>
     </div>
 
-</body>
+    <!-- 2 Column Layout: Principles & Status -->
+    <div class="layout-2col">
+        <!-- Core Diet Principles -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📌 5 Strategi Utama Program Diet</h2>
+            </div>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 16px;">
+                <li style="display: flex; gap: 14px; align-items: flex-start;">
+                    <div style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">1</div>
+                    <div>
+                        <strong style="color: var(--text-main); font-size: 0.95rem;">Defisit Kalori Moderat & Konsisten:</strong>
+                        <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 3px;">
+                            Kurangi 400–500 kcal dari TDEE harian. Jangan memangkas kalori di bawah 1,200 kcal karena dapat menurunkan laju metabolisme basal dan memicu kehilangan otot.
+                        </p>
+                    </div>
+                </li>
+                <li style="display: flex; gap: 14px; align-items: flex-start;">
+                    <div style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">2</div>
+                    <div>
+                        <strong style="color: var(--text-main); font-size: 0.95rem;">Protein Tinggi Pelindung Otot:</strong>
+                        <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 3px;">
+                            Konsumsi 1.6–2.0 gram protein per kg berat badan. Protein memiliki efek termis makanan (TEF) tertinggi dan memberikan rasa kenyang lebih lama.
+                        </p>
+                    </div>
+                </li>
+                <li style="display: flex; gap: 14px; align-items: flex-start;">
+                    <div style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">3</div>
+                    <div>
+                        <strong style="color: var(--text-main); font-size: 0.95rem;">Tingkatkan Serat & Sayuran Hijau:</strong>
+                        <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 3px;">
+                            Penuhi piring makan dengan sayuran rendah kalori bervolume tinggi (brokoli, bayam, selada, mentimun) untuk mengontrol rasa lapar dan menstabilkan gula darah.
+                        </p>
+                    </div>
+                </li>
+                <li style="display: flex; gap: 14px; align-items: flex-start;">
+                    <div style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3); width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">4</div>
+                    <div>
+                        <strong style="color: var(--text-main); font-size: 0.95rem;">Kombinasi Latihan Beban + Kardio (HIIT/LISS):</strong>
+                        <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 3px;">
+                            Tetap lakukan latihan beban agar tubuh mempertahankan jaringan otot, lalu tambahkan jalan cepat 8.000–10.000 langkah atau lari santai untuk meningkatkan pembakaran kalori.
+                        </p>
+                    </div>
+                </li>
+                <li style="display: flex; gap: 14px; align-items: flex-start;">
+                    <div style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">5</div>
+                    <div>
+                        <strong style="color: var(--text-main); font-size: 0.95rem;">Hidrasi Cukup (2.5 - 3 Liter Air Putih):</strong>
+                        <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 3px;">
+                            Rasa haus seringkali disalahartikan tubuh sebagai sinyal lapar. Minum segelas air 15 menit sebelum makan dapat membantu mengendalikan porsi makan.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </div>
 
-</html>
+        <!-- Current User Profile & Recommended Routine -->
+        <div>
+            <!-- Latest Weight Record -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Status Fisik Terkini Anda</h2>
+                    <span class="badge <?= $cat['badge'] ?>"><?= htmlspecialchars($cat['title']) ?></span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; text-align: center;">
+                    <div style="background: var(--bg-surface-elevated); padding: 14px; border-radius: var(--radius-md);">
+                        <span style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Berat Saat Ini</span>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main);"><?= number_format($weight, 1) ?> kg</div>
+                    </div>
+                    <div style="background: var(--bg-surface-elevated); padding: 14px; border-radius: var(--radius-md);">
+                        <span style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Skor BMI</span>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-cyan);"><?= number_format($bmi, 2) ?></div>
+                    </div>
+                    <div style="background: var(--bg-surface-elevated); padding: 14px; border-radius: var(--radius-md);">
+                        <span style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Target Kalori</span>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-primary);"><?= number_format($targetKalori) ?> kcal</div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-surface); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); font-size: 0.88rem; color: var(--text-muted);">
+                    💡 Target penurunan berat badan yang aman dan berkelanjutan adalah <strong>0.5 - 1.0 kg per minggu</strong>.
+                </div>
+            </div>
+
+            <!-- Example Diet Meal Plan -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🥗 Rekomendasi Menu Diet Sehari-hari</h2>
+                    <span class="badge badge-blue">Low Calorie Dense</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">
+                    <div style="padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle);">
+                        <strong style="color: var(--text-main);">Pagi (Sarapan Rendah Kalori):</strong>
+                        <p style="color: var(--text-muted); margin-top: 2px;">2 butir telur rebus (1 utuh, 1 putih) + 1 buah apel potong + secangkir teh hijau tanpa gula.</p>
+                    </div>
+                    <div style="padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle);">
+                        <strong style="color: var(--text-main);">Siang (Makan Utama):</strong>
+                        <p style="color: var(--text-muted); margin-top: 2px;">Nasi merah/putih 100g + Dada ayam panggang 130g + Semangkuk sayur brokoli dan wortel rebus.</p>
+                    </div>
+                    <div style="padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle);">
+                        <strong style="color: var(--text-main);">Sore (Camilan Sehat):</strong>
+                        <p style="color: var(--text-muted); margin-top: 2px;">Yogurt plain rendah lemak 100g atau segenggam kecil kacang almond panggang.</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--text-main);">Malam (Makan Malam Ringan):</strong>
+                        <p style="color: var(--text-muted); margin-top: 2px;">Ikan gurame/nila bakar tanpa santan 120g + Tahu rebus + Salad selada dan tomat segar dengan dressing lemon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>

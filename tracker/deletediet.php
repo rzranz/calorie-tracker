@@ -1,22 +1,23 @@
 <?php
-// Termasuk fungsi untuk menghubungkan ke database
-include('function.php');
+/**
+ * Legacy Endpoint: deletediet.php
+ * Safely deletes a food log entry and redirects back.
+ */
 
-// Ambil id_hitung yang akan dihapus
+require_once __DIR__ . '/../includes/functions.php';
+
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-
-    // Menghapus data berdasarkan id_hitung
-    $conn = connectDatabase();
-    $query = "DELETE FROM hitung_makanan WHERE id_hitung = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param('i', $id);  // 'i' menunjukkan bahwa parameter yang diterima adalah integer
-    $stmt->execute();
-
-    // Setelah data dihapus, redirect ke halaman sebelumnya
-    header("Location: makandiet.php");
-    exit();
-} else {
-    echo "ID tidak ditemukan!";
+    $id = (int)$_GET['id'];
+    if ($id > 0) {
+        deleteFoodLog($id);
+    }
 }
-?>
+
+// Redirect back cleanly
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+if (!empty($referer) && filter_var($referer, FILTER_VALIDATE_URL)) {
+    header("Location: " . $referer);
+} else {
+    header("Location: makandiet.php");
+}
+exit();

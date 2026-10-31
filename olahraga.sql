@@ -1,15 +1,8 @@
--- phpMyAdmin SQL Dump
--- version 4.5.1
--- http://www.phpmyadmin.net
---
--- Host: 127.0.0.1
--- Generation Time: Feb 11, 2025 at 02:26 PM
--- Server version: 10.1.9-MariaDB
--- PHP Version: 7.0.1
+-- Calorie Tracker / Let's Move Database Schema
+-- Compatible with MySQL 5.7+, MariaDB 10+, and SQLite via PDO
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -17,57 +10,38 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `olahraga`
---
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `beratbadan`
 --
 
-CREATE TABLE `beratbadan` (
-  `id_beratbadan` int(11) NOT NULL,
-  `berat` decimal(11,0) NOT NULL,
+CREATE TABLE IF NOT EXISTS `beratbadan` (
+  `id_beratbadan` int(11) NOT NULL AUTO_INCREMENT,
+  `berat` decimal(5,2) NOT NULL,
   `tinggi` int(11) NOT NULL,
-  `bmi` decimal(11,0) NOT NULL,
+  `usia` int(11) DEFAULT 25,
+  `gender` varchar(20) DEFAULT 'Laki-laki',
+  `aktivitas` varchar(50) DEFAULT 'moderate',
+  `bmi` decimal(5,2) NOT NULL,
   `kategori` varchar(50) NOT NULL,
   `kalori_harian` varchar(50) NOT NULL,
-  `tanggal` date NOT NULL
+  `target_program` varchar(50) DEFAULT 'bulking',
+  `tanggal` date NOT NULL,
+  PRIMARY KEY (`id_beratbadan`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Dumping data for table `beratbadan`
+-- Dumping sample data for table `beratbadan`
 --
 
-INSERT INTO `beratbadan` (`id_beratbadan`, `berat`, `tinggi`, `bmi`, `kategori`, `kalori_harian`, `tanggal`) VALUES
-(36, '94', 182, '28', 'gemuk', '1880', '2025-02-05'),
-(37, '80', 170, '28', 'gemuk', '1600', '2025-02-05'),
-(38, '70', 180, '22', 'ideal', '2442', '2025-02-05'),
-(40, '70', 180, '22', 'ideal', '2442', '2025-02-05'),
-(41, '70', 185, '20', 'ideal', '2773', '2025-02-05'),
-(42, '70', 165, '26', 'gemuk', '2642', '2025-02-05'),
-(44, '80', 182, '24', 'ideal', '2976', '2025-02-09'),
-(46, '80', 182, '24', 'ideal', '2632', '2025-02-09'),
-(47, '82', 182, '25', 'ideal', '3017', '2025-02-09'),
-(48, '70', 165, '26', 'gemuk', '2343', '2025-02-10'),
-(49, '80', 170, '28', 'gemuk', '', '2025-02-10'),
-(50, '80', 182, '24', 'ideal', '2624', '2025-02-10'),
-(51, '90', 182, '27', 'gemuk', '3184', '2025-02-10'),
-(52, '90', 182, '27', 'gemuk', '3184', '2025-02-10'),
-(53, '80', 170, '28', 'gemuk', '2878', '2025-02-10'),
-(54, '60', 175, '20', 'ideal', '2508', '2025-02-10'),
-(55, '70', 178, '22', 'ideal', '2756', '2025-02-10'),
-(56, '60', 170, '21', 'ideal', '2507', '2025-02-10'),
-(57, '80', 170, '28', 'gemuk', '2234', '2025-02-11'),
-(58, '80', 178, '25', 'gemuk', '3318', '2025-02-11'),
-(59, '80', 182, '24', 'ideal', '3302', '2025-02-11'),
-(60, '80', 182, '24', 'ideal', '3302', '2025-02-11'),
-(61, '80', 182, '24', 'ideal', '3302', '2025-02-11'),
-(62, '80', 182, '24', 'ideal', '3302', '2025-02-11'),
-(63, '80', 182, '24', 'ideal', '3302', '2025-02-11'),
-(64, '70', 180, '22', 'ideal', '2753', '2025-02-11'),
-(65, '80', 180, '25', 'ideal', '2650', '2025-02-11');
+INSERT INTO `beratbadan` (`id_beratbadan`, `berat`, `tinggi`, `usia`, `gender`, `aktivitas`, `bmi`, `kategori`, `kalori_harian`, `target_program`, `tanggal`) VALUES
+(36, 94.00, 182, 28, 'Laki-laki', 'light', 28.00, 'gemuk', '1880', 'diet', '2025-02-05'),
+(37, 80.00, 170, 26, 'Laki-laki', 'sedentary', 28.00, 'gemuk', '1600', 'diet', '2025-02-05'),
+(38, 70.00, 180, 24, 'Laki-laki', 'moderate', 22.00, 'ideal', '2442', 'bulking', '2025-02-05'),
+(41, 70.00, 185, 23, 'Laki-laki', 'active', 20.00, 'ideal', '2773', 'bulking', '2025-02-05'),
+(42, 70.00, 165, 25, 'Laki-laki', 'moderate', 26.00, 'gemuk', '2642', 'diet', '2025-02-05'),
+(44, 80.00, 182, 25, 'Laki-laki', 'active', 24.00, 'ideal', '2976', 'bulking', '2025-02-09'),
+(47, 82.00, 182, 26, 'Laki-laki', 'active', 25.00, 'ideal', '3017', 'bulking', '2025-02-09'),
+(58, 80.00, 178, 27, 'Laki-laki', 'very_active', 25.00, 'gemuk', '3318', 'bulking', '2025-02-11'),
+(65, 80.00, 180, 25, 'Laki-laki', 'moderate', 25.00, 'ideal', '2650', 'bulking', '2025-02-11');
 
 -- --------------------------------------------------------
 
@@ -75,45 +49,51 @@ INSERT INTO `beratbadan` (`id_beratbadan`, `berat`, `tinggi`, `bmi`, `kategori`,
 -- Table structure for table `hitung_makanan`
 --
 
-CREATE TABLE `hitung_makanan` (
-  `id_hitung` int(11) NOT NULL,
-  `makanan` varchar(50) NOT NULL,
-  `berat` decimal(5,2) NOT NULL,
-  `kalori` decimal(5,2) NOT NULL,
-  `protein` decimal(5,2) NOT NULL,
-  `tanggal` date NOT NULL
+CREATE TABLE IF NOT EXISTS `hitung_makanan` (
+  `id_hitung` int(11) NOT NULL AUTO_INCREMENT,
+  `makanan` varchar(100) NOT NULL,
+  `berat` decimal(6,2) NOT NULL,
+  `kalori` decimal(6,2) NOT NULL,
+  `protein` decimal(6,2) NOT NULL,
+  `karbohidrat` decimal(6,2) DEFAULT 0.00,
+  `lemak` decimal(6,2) DEFAULT 0.00,
+  `tanggal` date NOT NULL,
+  PRIMARY KEY (`id_hitung`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Indexes for dumped tables
+-- Dumping sample data for table `hitung_makanan`
 --
 
---
--- Indexes for table `beratbadan`
---
-ALTER TABLE `beratbadan`
-  ADD PRIMARY KEY (`id_beratbadan`);
+INSERT INTO `hitung_makanan` (`id_hitung`, `makanan`, `berat`, `kalori`, `protein`, `karbohidrat`, `lemak`, `tanggal`) VALUES
+(1, 'Dada Ayam Panggang', 150.00, 247.50, 46.50, 0.00, 5.40, '2025-02-11'),
+(2, 'Nasi Putih', 200.00, 260.00, 5.40, 56.00, 0.60, '2025-02-11'),
+(3, 'Telur Rebus', 100.00, 155.00, 12.60, 1.10, 10.60, '2025-02-11');
+
+-- --------------------------------------------------------
 
 --
--- Indexes for table `hitung_makanan`
---
-ALTER TABLE `hitung_makanan`
-  ADD PRIMARY KEY (`id_hitung`);
-
---
--- AUTO_INCREMENT for dumped tables
+-- Table structure for table `olahraga_log`
 --
 
+CREATE TABLE IF NOT EXISTS `olahraga_log` (
+  `id_olahraga` int(11) NOT NULL AUTO_INCREMENT,
+  `nama_olahraga` varchar(100) NOT NULL,
+  `durasi_menit` decimal(6,2) DEFAULT 0.00,
+  `repetisi` int(11) DEFAULT 0,
+  `kalori_terbakar` decimal(6,2) NOT NULL,
+  `tanggal` date NOT NULL,
+  PRIMARY KEY (`id_olahraga`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 --
--- AUTO_INCREMENT for table `beratbadan`
+-- Dumping sample data for table `olahraga_log`
 --
-ALTER TABLE `beratbadan`
-  MODIFY `id_beratbadan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
---
--- AUTO_INCREMENT for table `hitung_makanan`
---
-ALTER TABLE `hitung_makanan`
-  MODIFY `id_hitung` int(11) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO `olahraga_log` (`id_olahraga`, `nama_olahraga`, `durasi_menit`, `repetisi`, `kalori_terbakar`, `tanggal`) VALUES
+(1, 'Push Up', 0.00, 50, 22.50, '2025-02-11'),
+(2, 'Lari (Jogging)', 30.00, 0, 300.00, '2025-02-11');
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

@@ -1,59 +1,163 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Olahraga dan Kalori Terbakar</title>
-  <link rel="stylesheet" href="../css/olahraga.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catatan Olahraga & Kalori Terbakar • Let's Move</title>
+    <link rel="stylesheet" href="../css/modern.css">
 </head>
-
 <body>
+    <header class="navbar">
+        <div class="app-container navbar-inner">
+            <a href="../index.php" class="brand-logo">
+                <div class="brand-icon">⚡</div>
+                <span>Let's Move</span>
+                <span class="brand-badge">Workout</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.php" class="nav-link">📊 Dashboard</a></li>
+                <li><a href="makan_hari_ini.php" class="nav-link">🥗 Makan Hari Ini</a></li>
+                <li><a href="olahraga.html" class="nav-link active">🏋️ Catatan Olahraga</a></li>
+                <li><a href="bulking.php" class="nav-link">💪 Program Bulking</a></li>
+                <li><a href="diet.php" class="nav-link">🥑 Program Diet</a></li>
+            </ul>
+        </div>
+    </header>
 
-  <div class="sidebar">
-    <h2>Menu Bulking</h2>
-    <a href="bulking.php">Beranda</a>
-    <a href="tracker.html">Program Bulking</a>
-    <a href="olahraga.html">Program Exercise</a>
-    <a href="makan_hari_ini.php">Makan Hari Ini</a>
-  </div>
+    <main class="app-container" style="padding-top: 28px; padding-bottom: 50px;">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h1 class="page-title">🏋️ Catatan Olahraga & Kalori Terbakar</h1>
+                <p class="page-subtitle">Catat aktivitas fisik harian Anda. Kalori yang terbakar akan langsung memotong kalori bersih pada dashboard.</p>
+            </div>
+            <div>
+                <a href="../index.php" class="btn btn-secondary btn-sm">← Kembali ke Dashboard</a>
+            </div>
+        </div>
 
-  <div class="main-content">
-    <h1>Catatan Olahraga dan Kalori Terbakar</h1>
-    <p>Catat olahraga yang dilakukan dan hitung total kalori terbakar berdasarkan jenis dan durasi latihan.</p>
+        <!-- Total Calorie Burn Card -->
+        <div class="card" style="margin-bottom: 24px; padding: 20px 26px; border-left: 4px solid var(--color-rose);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <span class="stat-label">TOTAL KALORI TERBAKAR HARI INI</span>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--color-rose);" id="totalKalori">
+                        0.0 kalori
+                    </div>
+                </div>
+                <div>
+                    <span class="badge badge-rose" style="font-size: 0.82rem; padding: 6px 12px;">Active Calorie Burn</span>
+                </div>
+            </div>
+        </div>
 
-    <section class="olahraga-cards" id="olahraga-cards">
-      <div class="card">
-        <h3>Tambah Olahraga</h3>
-        
-        <!-- Ganti input dengan select untuk jenis olahraga -->
-        <label for="exercise">Jenis Olahraga:</label>
-        <select id="exercise">
-          <option value="Push Up">Push Up</option>
-          <option value="Sit Up">Sit Up</option>
-          <option value="Back Up">Back Up</option>
-          <option value="Lari">Lari</option>
-          <option value="Renang">Renang</option>
-          <option value="Barble">Barble</option>
-        </select>
+        <div class="layout-sidebar">
+            <!-- Add Workout Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title" style="font-size: 1.1rem;">+ Tambah Sesi Latihan</h2>
+                </div>
 
-        <label for="duration">Durasi (menit):</label>
-        <input type="number" id="duration" placeholder="Masukkan durasi">
+                <div class="form-group">
+                    <label for="exercise" class="form-label">Jenis Olahraga</label>
+                    <select id="exercise" class="form-control">
+                        <optgroup label="Latihan Repetisi (Bodyweight & Gym)">
+                            <option value="Push Up">Push Up (0.45 kcal/rep)</option>
+                            <option value="Sit Up">Sit Up (0.40 kcal/rep)</option>
+                            <option value="Pull Up">Pull Up (1.00 kcal/rep)</option>
+                            <option value="Squat">Squat Bodyweight (0.50 kcal/rep)</option>
+                            <option value="Back Up">Back Up (0.35 kcal/rep)</option>
+                        </optgroup>
+                        <optgroup label="Latihan Durasi & Kardio">
+                            <option value="Angkat Beban">Angkat Beban / Gym (6.5 kcal/menit)</option>
+                            <option value="Lari">Lari / Jogging (10.0 kcal/menit)</option>
+                            <option value="Bersepeda">Bersepeda (8.5 kcal/menit)</option>
+                            <option value="Renang">Renang (9.0 kcal/menit)</option>
+                            <option value="Lompat Tali">Lompat Tali / Skipping (11.0 kcal/menit)</option>
+                            <option value="HIIT Cardio">HIIT Workout (12.0 kcal/menit)</option>
+                            <option value="Jalan Kaki">Jalan Kaki (4.0 kcal/menit)</option>
+                        </optgroup>
+                    </select>
+                </div>
 
-        <label for="repetitions">Repetisi (jika ada):</label>
-        <input type="number" id="repetitions" placeholder="Masukkan repetisi">
+                <div class="form-group">
+                    <label for="duration" class="form-label">Durasi Latihan (Menit)</label>
+                    <input type="number" id="duration" class="form-control" placeholder="Contoh: 30" min="0" step="1">
+                    <span style="font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; display: block;">Isi jika latihan kardio atau gym berdasarkan durasi waktu.</span>
+                </div>
 
-        <button id="addExerciseBtn">Tambah Olahraga</button>
-      </div>
-    </section>
+                <div class="form-group">
+                    <label for="repetitions" class="form-label">Repetisi (Total Hitungan)</label>
+                    <input type="number" id="repetitions" class="form-control" placeholder="Contoh: 50" min="0" step="1">
+                    <span style="font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; display: block;">Isi jika latihan push up, sit up, atau pull up.</span>
+                </div>
 
-    <section class="total-kalori">
-      <h2>Total Kalori Terbakar</h2>
-      <p id="totalKalori">0 kalori</p>
-    </section>
-  </div>
+                <button id="addExerciseBtn" class="btn btn-primary btn-block" style="margin-top: 10px;">
+                    Simpan Latihan
+                </button>
+            </div>
 
-  <script src="../js/olahraga.js"></script>
+            <!-- List of Workouts Today -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title" style="font-size: 1.15rem;">📋 Daftar Latihan Hari Ini</h2>
+                    <span class="badge badge-emerald">Tersimpan Otomatis</span>
+                </div>
+
+                <div class="olahraga-cards-grid" id="olahraga-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;">
+                    <!-- Exercise cards inserted here dynamically -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="app-container">
+            <p><strong>Let's Move</strong> — Calorie Tracker & Fitness Management System.</p>
+        </div>
+    </footer>
+
+    <style>
+        .exercise-card-item {
+            background-color: var(--bg-surface-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+        }
+        .exercise-card-item h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+        .exercise-card-item p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+        .burned-badge {
+            margin-top: 8px;
+            color: var(--color-rose) !important;
+            font-weight: 600;
+        }
+        .btn-delete-card {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: color 0.15s;
+        }
+        .btn-delete-card:hover {
+            color: var(--color-rose);
+        }
+    </style>
+
+    <script src="../js/olahraga.js"></script>
 </body>
-
 </html>

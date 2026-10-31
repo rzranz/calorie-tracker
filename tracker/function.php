@@ -1,75 +1,105 @@
 <?php
-// Fungsi untuk koneksi ke database
+/**
+ * Legacy Compatibility Layer for tracker/function.php
+ * Delegates to modern PDO database & functions to ensure zero breakage.
+ */
+
+require_once __DIR__ . '/../includes/functions.php';
+
 function connectDatabase() {
-    $servername = "localhost";  // Ganti dengan host jika perlu
-    $username = "root";         // Ganti dengan username database Anda
-    $password = "";             // Ganti dengan password database Anda
-    $dbname = "olahraga";       // Nama database
+    // Attempt standard mysqli if MySQL extension and server is active
+    $servername = getenv('DB_HOST') ?: "localhost";
+    $username   = getenv('DB_USERNAME') ?: "root";
+    $password   = getenv('DB_PASSWORD') ?: "";
+    $dbname     = getenv('DB_DATABASE') ?: "olahraga";
 
-    // Membuat koneksi
-    $conn = new mysqli($servername, $username, $password, $dbname);
-
-    // Cek koneksi
-    if ($conn->connect_error) {
-        die("Koneksi gagal: " . $conn->connect_error);
+    if (extension_loaded('mysqli')) {
+        try {
+            $driver = new mysqli_driver();
+            $driver->report_mode = MYSQLI_REPORT_OFF;
+            $conn = @new mysqli($servername, $username, $password, $dbname);
+            if (!$conn->connect_error) {
+                return $conn;
+            }
+        } catch (Throwable $e) {
+            // MySQL unavailable, proceed to PDO bridge
+        }
     }
 
-    return $conn;
+    // Return a lightweight PDO-to-mysqli bridge object so legacy scripts don't crash
+    return new class {
+        private PDO $pdo;
+        public int $connect_errno = 0;
+        public ?string $connect_error = null;
+
+        public function __construct() {
+            $this->pdo = getDb();
+        }
+
+        public function query(string $query) {
+            try {
+                $stmt = $this->pdo->query($query);
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                return new class($rows) {
+                    public int $num_rows;
+                    private array $rows;
+                    private int $cursor = 0;
+
+                    public function __construct(array $rows) {
+                        $this->rows = $rows;
+                        $this->num_rows = count($rows);
+                    }
+
+                    public function fetch_assoc(): ?array {
+                        if ($this->cursor < $this->num_rows) {
+                            return $this->rows[$this->cursor++];
+                        }
+                        return null;
+                    }
+                };
+            } catch (Throwable $e) {
+                return false;
+            }
+        }
+
+        public function prepare(string $query) {
+            try {
+                $pdoStmt = $this->pdo->prepare($query);
+                return new class($pdoStmt) {
+                    private PDOStatement $stmt;
+                    private array $params = [];
+
+                    public function __construct(PDOStatement $stmt) {
+                        $this->stmt = $stmt;
+                    }
+
+                    public function bind_param(string $types, &...$vars): bool {
+                        $this->params = $vars;
+                        return true;
+                    }
+
+                    public function execute(): bool {
+                        return $this->stmt->execute($this->params);
+                    }
+
+                    public function close(): bool {
+                        return true;
+                    }
+                };
+            } catch (Throwable $e) {
+                return false;
+            }
+        }
+
+        public function real_escape_string(string $str): string {
+            return addslashes($str);
+        }
+
+        public function close(): void {}
+    };
 }
 
-// Fungsi untuk menyimpan data berat, tinggi, bmi, kategori, kalori harian, dan tanggal ke dalam database
-function simpanData($berat, $tinggi, $bmi, $usia, $gender, $aktivitas) {
-    // Menghubungkan ke database
-    $conn = connectDatabase();
-
-    // Menghindari SQL Injection
-    $berat = $conn->real_escape_string($berat);
-    $tinggi = $conn->real_escape_string($tinggi);
-    $bmi = $conn->real_escape_string($bmi);
-
-    // Menentukan kategori berdasarkan BMI
-    if ($bmi < 18.5) {
-        $kategori = "kurus";
-    } elseif ($bmi >= 18.5 && $bmi < 24.9) {
-        $kategori = "ideal";
-    } elseif ($bmi >= 25 && $bmi < 29.9) {
-        $kategori = "gemuk";
-    } else {
-        $kategori = "Obesitas";
-    }
-
-    // Menghitung kalori harian berdasarkan usia, jenis kelamin, berat badan, tinggi badan, dan aktivitas
-    if ($gender == "Laki-laki") {
-        $bmr = 88.36 + (13.4 * $berat) + (4.8 * $tinggi) - (5.7 * $usia);
-    } else {
-        $bmr = 447.6 + (9.2 * $berat) + (3.1 * $tinggi) - (4.3 * $usia);
-    }
-
-    $faktorAktivitas = [
-        "sedentary" => 1.2,
-        "light" => 1.375,
-        "moderate" => 1.55,
-        "active" => 1.725,
-        "very_active" => 1.9
-    ];
-
-    $kaloriHarian = round($bmr * $faktorAktivitas[$aktivitas]);
-
-    // Pastikan kategori dan kalori harian sudah terisi sebelum digunakan
-    echo "<p>Kategori: $kategori</p>"; // Debugging untuk memeriksa kategori
-    echo "<p>Kalori Harian: $kaloriHarian</p>"; // Debugging untuk memeriksa kalori harian
-
-    // Query untuk menyimpan data
-    $query = "INSERT INTO `beratbadan` (berat, tinggi, bmi, kategori, kalori_harian, tanggal) 
-              VALUES ('$berat', '$tinggi', '$bmi', '$kategori', '$kaloriHarian', now())";
-
-    if ($conn->query($query) === TRUE) {
-        echo "<p>Data berhasil disimpan ke database!</p>";
-    } else {
-        echo "Error: " . $query . "<br>" . $conn->error;
-    }
-
-    // Menutup koneksi
-    $conn->close();
+function simpanData($berat, $tinggi, $bmi, $usia, $gender, $aktivitas, $goal = 'bulking') {
+    return saveWeightLog((float)$berat, (float)$tinggi, (int)$usia, (string)$gender, (string)$aktivitas, (string)$goal);
 }
-?>

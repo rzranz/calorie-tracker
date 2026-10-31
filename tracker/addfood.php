@@ -1,38 +1,36 @@
 <?php
-// Menyambung ke database
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "olahraga";
+/**
+ * Legacy Endpoint: addfood.php
+ * Handles POST requests to add food items to the database.
+ */
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+require_once __DIR__ . '/../includes/functions.php';
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = trim($_POST['name'] ?? '');
+    $servingSize = (float)($_POST['serving_size'] ?? 100);
+    $calories = (float)($_POST['calories'] ?? 0);
+    $protein = (float)($_POST['protein'] ?? 0);
+    $carbs = (float)($_POST['carbs'] ?? ($_POST['carbohydrates'] ?? 0));
+    $fat = (float)($_POST['fat'] ?? 0);
 
-// Cek apakah data POST diterima
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = $_POST['name'];
-    $serving_size = $_POST['serving_size'];
-    $calories = $_POST['calories'];
-    $protein = $_POST['protein'];
+    if (!empty($name)) {
+        $id = addFoodLog($name, $servingSize, $calories, $protein, $carbs, $fat);
 
-    // Debugging: Tampilkan data yang diterima
-    echo "Received data: Name = $name, Serving Size = $serving_size, Calories = $calories, Protein = $protein";
-
-    // Query untuk memasukkan data ke tabel hitung_makanan
-    $sql = "INSERT INTO hitung_makanan (makanan, berat, kalori, protein,tanggal) 
-            VALUES ('$name', '$serving_size', '$calories', '$protein',now())";
-
-    if ($conn->query($sql) === TRUE) {
-        echo "New record created successfully";
+        // Check if request expects JSON
+        if (
+            (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) ||
+            (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+        ) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['success' => true, 'id' => $id, 'message' => 'New record created successfully']);
+        } else {
+            echo "New record created successfully. ID: " . $id;
+        }
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        http_response_code(400);
+        echo "Error: Food name is required.";
     }
 } else {
     echo "No data received.";
 }
-
-$conn->close();
-?>

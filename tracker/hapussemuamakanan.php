@@ -1,22 +1,17 @@
 <?php
-include('function.php'); // Termasuk fungsi koneksi database
+/**
+ * Legacy Endpoint: hapussemuamakanan.php
+ * Clears today's food logs and redirects back.
+ */
 
-// Menghubungkan ke database
-$conn = connectDatabase();
+require_once __DIR__ . '/../includes/functions.php';
 
-// Query untuk menghapus semua data di tabel hitung_makanan
-$query = "DELETE FROM hitung_makanan";
-$stmt = $conn->prepare($query);
+resetTodayFoodLogs();
 
-// Menjalankan query
-if ($stmt->execute()) {
-    echo "Semua data makanan telah dihapus.";
-    header("Location: makan_hari_ini.php"); // Redirect kembali ke halaman "Makan Hari Ini"
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+if (!empty($referer) && filter_var($referer, FILTER_VALIDATE_URL)) {
+    header("Location: " . $referer);
 } else {
-    echo "Terjadi kesalahan saat menghapus data.";
+    header("Location: makan_hari_ini.php");
 }
-
-// Menutup koneksi
-$stmt->close();
-$conn->close();
-?>
+exit();
