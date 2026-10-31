@@ -44,3 +44,4 @@ $rootPath = $isSubdir ? '../' : './';
     </script>
 </body>
 </html>
+

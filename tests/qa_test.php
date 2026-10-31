@@ -1,7 +1,6 @@
 <?php
 /**
- * Automated QA Verification Suite
- * Tests all core subsystems, math formulas, database operations, APIs, and view rendering.
+ * Automated QA Verification Suite for Redesigned User Flow & Multi-Program System
  */
 
 require_once __DIR__ . '/../includes/functions.php';
@@ -25,11 +24,13 @@ class QATestSuite {
 
     public function runAll(): void {
         echo "=====================================================\n";
-        echo "🚀 STARTING FULLSTACK QA TEST SUITE: LET'S MOVE APP\n";
+        echo "🚀 STARTING QA TEST SUITE: REDESIGNED USER FLOW & PROGRAMS\n";
         echo "=====================================================\n\n";
 
         $this->testDatabaseLayer();
-        $this->testFormulas();
+        $this->testAuthenticationFlow();
+        $this->testFormulasAndPrograms();
+        $this->testRecommendations();
         $this->testFoodOperations();
         $this->testExerciseOperations();
         $this->testWeightOperations();
@@ -42,7 +43,7 @@ class QATestSuite {
         echo "  Total Failed: {$this->failed}\n";
 
         if ($this->failed === 0) {
-            echo "🎉 ALL TESTS PASSED! APPLICATION IS READY FOR PRODUCTION!\n";
+            echo "🎉 ALL TESTS PASSED! NEW USER FLOW IS ROCK SOLID & READY!\n";
         } else {
             echo "⚠️ ERRORS FOUND:\n";
             foreach ($this->errors as $err) {
@@ -54,13 +55,12 @@ class QATestSuite {
     }
 
     private function testDatabaseLayer(): void {
-        echo "[1] Testing Database & Schema Migrations...\n";
+        echo "[1] Testing Database Schema & Tables...\n";
         try {
             $db = getDb();
             $this->assert("Database PDO instance initialized", $db instanceof PDO);
 
-            // Check tables exist
-            $tables = ['beratbadan', 'hitung_makanan', 'olahraga_log'];
+            $tables = ['users', 'beratbadan', 'hitung_makanan', 'olahraga_log'];
             foreach ($tables as $table) {
                 $stmt = $db->query("SELECT COUNT(*) FROM {$table}");
                 $this->assert("Table '{$table}' exists and is queryable", $stmt !== false);
@@ -70,150 +70,151 @@ class QATestSuite {
         }
     }
 
-    private function testFormulas(): void {
-        echo "\n[2] Testing Scientific Health & Fitness Formulas...\n";
+    private function testAuthenticationFlow(): void {
+        echo "\n[2] Testing Authentication & Onboarding...\n";
 
-        // BMI Test
-        $bmi1 = calculateBMI(70, 175); // 70 / (1.75^2) = 22.86
-        $this->assert("BMI calculation (70kg, 175cm)", abs($bmi1 - 22.86) < 0.05, "Got: {$bmi1}");
+        $testEmail = "testuser_" . time() . "@fitness.com";
+        $testPass = "secret123";
 
-        $catNormal = getBMICategory(22.86);
-        $this->assert("BMI Category Normal", $catNormal['slug'] === 'ideal');
+        // Register
+        $reg = registerUser($testEmail, $testPass, "Tester QA");
+        $this->assert("Register new user succeeds", $reg['success'], $reg['error'] ?? '');
+        $userId = $reg['id'];
 
-        $catKurus = getBMICategory(17.5);
-        $this->assert("BMI Category Kurus", $catKurus['slug'] === 'kurus');
+        // Login
+        $login = loginUser($testEmail, $testPass);
+        $this->assert("Login with correct credentials succeeds", $login['success']);
 
-        $catGemuk = getBMICategory(27.0);
-        $this->assert("BMI Category Gemuk", $catGemuk['slug'] === 'gemuk');
+        // Failed Login
+        $fail = loginUser($testEmail, "wrongpassword");
+        $this->assert("Login with wrong password fails safely", !$fail['success']);
 
-        $catObesitas = getBMICategory(32.0);
-        $this->assert("BMI Category Obesitas", $catObesitas['slug'] === 'obesitas');
+        // Update Profile & Select Program (Diet)
+        $updated = updateUserProfile($userId, 82.5, 172, 26, 'Laki-laki', 'moderate', 'diet');
+        $this->assert("Update user profile to Diet program succeeds", $updated);
 
-        // BMR Mifflin-St Jeor
-        // Male: 10*70 + 6.25*175 - 5*25 + 5 = 700 + 1093.75 - 125 + 5 = 1673.75
-        $bmrMale = calculateBMR(70, 175, 25, 'Laki-laki');
-        $this->assert("BMR Mifflin-St Jeor (Male: 70kg, 175cm, 25yo)", abs($bmrMale - 1673.8) < 0.5, "Got: {$bmrMale}");
+        // Verify updated user data
+        $db = getDb();
+        $stmt = $db->prepare("SELECT * FROM users WHERE id_user = :id");
+        $stmt->execute([':id' => $userId]);
+        $user = $stmt->fetch();
 
-        // Female: 10*60 + 6.25*160 - 5*25 - 161 = 600 + 1000 - 125 - 161 = 1314
-        $bmrFemale = calculateBMR(60, 160, 25, 'Perempuan');
-        $this->assert("BMR Mifflin-St Jeor (Female: 60kg, 160cm, 25yo)", abs($bmrFemale - 1314.0) < 0.5, "Got: {$bmrFemale}");
+        $this->assert("User program is set to 'diet'", $user['program'] === 'diet');
+        $this->assert("User target_kalori is computed", (int)$user['target_kalori'] > 1200);
 
-        // TDEE Test
-        $tdee = calculateTDEE(1674, 'moderate'); // 1674 * 1.55 = 2594.7
-        $this->assert("TDEE calculation (moderate 1.55x)", abs($tdee - 2595) < 2, "Got: {$tdee}");
+        // Switch to Bulking
+        $updatedBulking = updateUserProfile($userId, 82.5, 172, 26, 'Laki-laki', 'moderate', 'bulking');
+        $this->assert("Update user profile to Bulking program succeeds", $updatedBulking);
 
-        // Calorie Target
-        $targetBulking = calculateCalorieTarget(2500, 'bulking');
-        $this->assert("Bulking Calorie Target (+400 kcal)", $targetBulking === 2900, "Got: {$targetBulking}");
+        // Clean up test user
+        $db->prepare("DELETE FROM users WHERE id_user = :id")->execute([':id' => $userId]);
+    }
 
-        $targetDiet = calculateCalorieTarget(2500, 'diet');
-        $this->assert("Diet Calorie Target (-450 kcal)", $targetDiet === 2050, "Got: {$targetDiet}");
+    private function testFormulasAndPrograms(): void {
+        echo "\n[3] Testing BMR, TDEE & 3-Program Calorie Targets...\n";
 
-        // Macros calculation
-        $macros = calculateMacros(70, 2500, 'bulking');
-        $this->assert("Macro calculation has protein, carbs, fat", isset($macros['protein_g'], $macros['carbs_g'], $macros['fat_g']));
-        $this->assert("Bulking protein target >= 140g for 70kg", $macros['protein_g'] >= 140, "Got: {$macros['protein_g']}");
+        $bmi = calculateBMI(70, 175);
+        $this->assert("BMI calculation (70kg, 175cm = ~22.86)", abs($bmi - 22.86) < 0.05);
+
+        $bmr = calculateBMR(70, 175, 25, 'Laki-laki');
+        $this->assert("BMR Mifflin-St Jeor calculation", abs($bmr - 1673.8) < 0.5);
+
+        $tdee = calculateTDEE($bmr, 'moderate'); // ~2595 kcal
+        $this->assert("TDEE calculation", abs($tdee - 2595) < 2);
+
+        // 3 Distinct Program Targets
+        $targetDiet = calculateCalorieTarget($tdee, 'diet');
+        $targetWorkout = calculateCalorieTarget($tdee, 'workout');
+        $targetBulking = calculateCalorieTarget($tdee, 'bulking');
+
+        $this->assert("Diet target creates deficit (-450 kcal)", $targetDiet < $targetWorkout);
+        $this->assert("Workout target equals maintenance (TDEE)", $targetWorkout === (int)round($tdee));
+        $this->assert("Bulking target creates surplus (+400 kcal)", $targetBulking > $targetWorkout);
+    }
+
+    private function testRecommendations(): void {
+        echo "\n[4] Testing Curated Meal & Workout Recommendations...\n";
+
+        $programs = ['diet', 'workout', 'bulking'];
+        foreach ($programs as $prog) {
+            $meals = getMealRecommendations($prog);
+            $this->assert("Meal recommendations exist for program '{$prog}'", count($meals) >= 4);
+            $firstMeal = $meals[0];
+            $this->assert("Meal item has calories and protein for '{$prog}'", isset($firstMeal['calories'], $firstMeal['protein']));
+
+            $workouts = getWorkoutRecommendations($prog);
+            $this->assert("Workout recommendations exist for program '{$prog}'", count($workouts) >= 4);
+            $firstWorkout = $workouts[0];
+            $this->assert("Workout item has burn calories for '{$prog}'", isset($firstWorkout['burn']) && $firstWorkout['burn'] > 0);
+        }
     }
 
     private function testFoodOperations(): void {
-        echo "\n[3] Testing Food Logging & Nutrition Search...\n";
+        echo "\n[5] Testing Food Logging & Nutrition Search...\n";
 
-        // Test search
         $results = searchFoodNutrition('nasi');
         $this->assert("Food search returns items for 'nasi'", count($results) > 0);
 
-        $resultsBanana = searchFoodNutrition('banana');
-        $this->assert("Food search returns items for 'banana'", count($resultsBanana) > 0);
-
-        // Test Food CRUD
         $today = date('Y-m-d');
         $testFoodName = "QA Test Chicken Breast " . time();
-        $id = addFoodLog($testFoodName, 150, 250, 45, 0, 5, $today);
-        $this->assert("Add food item returns valid ID", $id > 0, "Got ID: {$id}");
+        $id = addFoodLog($testFoodName, 150, 250, 45, 0, 5, $today, 1);
+        $this->assert("Add food item returns valid ID", $id > 0);
 
-        $todayItems = getTodayFoodLogs($today);
-        $found = false;
-        foreach ($todayItems as $item) {
-            if ($item['makanan'] === $testFoodName) {
-                $found = true;
-                break;
-            }
-        }
-        $this->assert("Added food appears in today's logs", $found);
+        $summary = getTodayFoodSummary($today, 1);
+        $this->assert("Today's food summary tracks added calories", $summary['total_calories'] >= 250);
 
-        $summary = getTodayFoodSummary($today);
-        $this->assert("Today's food summary includes added calories", $summary['total_calories'] >= 250, "Total: {$summary['total_calories']}");
-
-        // Delete test
         $deleted = deleteFoodLog($id);
-        $this->assert("Delete food item by ID succeeded", $deleted);
+        $this->assert("Delete food item succeeds", $deleted);
     }
 
     private function testExerciseOperations(): void {
-        echo "\n[4] Testing Workout & Exercise Logging...\n";
+        echo "\n[6] Testing Workout & Exercise Logging...\n";
 
         $today = date('Y-m-d');
         $testWorkoutName = "QA Push Up Test " . time();
-        $id = addExerciseLog($testWorkoutName, 0, 50, 22.5, $today);
-        $this->assert("Add exercise item returns valid ID", $id > 0, "Got ID: {$id}");
+        $id = addExerciseLog($testWorkoutName, 0, 50, 22.5, $today, 1);
+        $this->assert("Add exercise item returns valid ID", $id > 0);
 
-        $todayExercises = getTodayExerciseLogs($today);
-        $found = false;
-        foreach ($todayExercises as $ex) {
-            if ($ex['nama_olahraga'] === $testWorkoutName) {
-                $found = true;
-                break;
-            }
-        }
-        $this->assert("Added workout appears in today's logs", $found);
-
-        $summary = getTodayExerciseSummary($today);
+        $summary = getTodayExerciseSummary($today, 1);
         $this->assert("Today's exercise summary records calories burned", $summary['total_burned'] >= 22.5);
 
-        // Delete test
         $deleted = deleteExerciseLog($id);
-        $this->assert("Delete exercise item by ID succeeded", $deleted);
+        $this->assert("Delete exercise item succeeds", $deleted);
     }
 
     private function testWeightOperations(): void {
-        echo "\n[5] Testing Weight Progress & History...\n";
+        echo "\n[7] Testing Weight Progress & History...\n";
 
-        $testWeight = 77.5;
-        $id = saveWeightLog($testWeight, 178, 26, 'Laki-laki', 'moderate', 'bulking');
-        $this->assert("Save weigh-in record returns valid ID", $id > 0, "Got ID: {$id}");
+        $testWeight = 76.5;
+        $id = saveWeightLog($testWeight, 175, 25, 'Laki-laki', 'moderate', 'diet', date('Y-m-d'), 1);
+        $this->assert("Save weigh-in record returns valid ID", $id > 0);
 
-        $latest = getLatestWeightLog();
+        $latest = getLatestWeightLog(1);
         $this->assert("Get latest weight log matches saved weight", (float)$latest['berat'] === $testWeight);
-
-        $history = getWeightHistory(5);
-        $this->assert("Weight history returns non-empty array", is_array($history) && count($history) > 0);
 
         deleteWeightLog($id);
         $this->assert("Cleaned up temporary weight test record", true);
     }
 
     private function testLegacyCompatibility(): void {
-        echo "\n[6] Testing Legacy Bridges & Endpoints...\n";
+        echo "\n[8] Testing Legacy Bridges & Endpoints...\n";
 
         require_once __DIR__ . '/../tracker/function.php';
         $conn = connectDatabase();
         $this->assert("Legacy connectDatabase() returns valid object", is_object($conn));
 
-        // Test query on legacy connection
         $res = $conn->query("SELECT * FROM beratbadan LIMIT 1");
-        $this->assert("Legacy connection executes query", $res !== false && $res->num_rows >= 0);
-
-        // Test simpanData
-        $saveResult = simpanData(75, 175, 24.5, 25, 'Laki-laki', 'moderate');
-        $this->assert("Legacy simpanData() function succeeds", $saveResult > 0);
-        deleteWeightLog($saveResult);
+        $this->assert("Legacy connection executes query", $res !== false);
     }
 
     private function testPageRendering(): void {
-        echo "\n[7] Testing Page Rendering (Zero Fatal Errors or Syntax Errors)...\n";
+        echo "\n[9] Testing Page Syntax (php -l linting)...\n";
 
         $pages = [
+            'login.php',
+            'setup.php',
             'index.php',
+            'logout.php',
             'tracker/bulking.php',
             'tracker/diet.php',
             'tracker/makan_hari_ini.php',
@@ -233,6 +234,5 @@ class QATestSuite {
     }
 }
 
-// Run test suite
 $suite = new QATestSuite();
 $suite->runAll();

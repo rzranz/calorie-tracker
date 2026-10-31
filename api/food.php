@@ -6,9 +6,10 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../includes/functions.php';
 
-$action = $_GET['action'] ?? ($_POST['action'] ?? '');
+$user = getCurrentUser();
+$userId = $user ? (int)$user['id_user'] : 1;
 
-// Parse JSON payload if sent as Content-Type: application/json
+$action = $_GET['action'] ?? ($_POST['action'] ?? '');
 $input = json_decode(file_get_contents('php://input'), true) ?? [];
 if (!empty($input['action'])) {
     $action = $input['action'];
@@ -42,8 +43,8 @@ try {
                 exit;
             }
 
-            $id = addFoodLog($name, $servingSize, $calories, $protein, $carbs, $fat, $date);
-            $summary = getTodayFoodSummary($date);
+            $id = addFoodLog($name, $servingSize, $calories, $protein, $carbs, $fat, $date, $userId);
+            $summary = getTodayFoodSummary($date, $userId);
 
             echo json_encode([
                 'success' => true,
@@ -62,7 +63,7 @@ try {
             }
 
             $deleted = deleteFoodLog($id);
-            $summary = getTodayFoodSummary();
+            $summary = getTodayFoodSummary(null, $userId);
 
             echo json_encode([
                 'success' => $deleted,
@@ -73,8 +74,8 @@ try {
 
         case 'reset':
             $date = trim($_POST['date'] ?? ($input['date'] ?? date('Y-m-d')));
-            $reset = resetTodayFoodLogs($date);
-            $summary = getTodayFoodSummary($date);
+            $reset = resetTodayFoodLogs($date, $userId);
+            $summary = getTodayFoodSummary($date, $userId);
 
             echo json_encode([
                 'success' => $reset,
@@ -86,8 +87,8 @@ try {
         case 'today':
         default:
             $date = trim($_GET['date'] ?? date('Y-m-d'));
-            $items = getTodayFoodLogs($date);
-            $summary = getTodayFoodSummary($date);
+            $items = getTodayFoodLogs($date, $userId);
+            $summary = getTodayFoodSummary($date, $userId);
 
             echo json_encode([
                 'success' => true,

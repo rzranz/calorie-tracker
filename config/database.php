@@ -82,10 +82,30 @@ class Database {
 
     private static function runMigrations(PDO $pdo, string $driver): void {
         if ($driver === 'sqlite') {
+            // Table: users
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS users (
+                    id_user INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    nama TEXT DEFAULT '',
+                    program TEXT DEFAULT 'bulking',
+                    target_kalori INTEGER DEFAULT 2400,
+                    berat REAL DEFAULT 70,
+                    tinggi REAL DEFAULT 175,
+                    usia INTEGER DEFAULT 25,
+                    gender TEXT DEFAULT 'Laki-laki',
+                    aktivitas TEXT DEFAULT 'moderate',
+                    bmi REAL DEFAULT 22.86,
+                    created_at TEXT NOT NULL
+                )
+            ");
+
             // Table: beratbadan
             $pdo->exec("
                 CREATE TABLE IF NOT EXISTS beratbadan (
                     id_beratbadan INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER DEFAULT 1,
                     berat REAL NOT NULL,
                     tinggi REAL NOT NULL,
                     usia INTEGER DEFAULT 25,
@@ -103,6 +123,7 @@ class Database {
             $pdo->exec("
                 CREATE TABLE IF NOT EXISTS hitung_makanan (
                     id_hitung INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER DEFAULT 1,
                     makanan TEXT NOT NULL,
                     berat REAL NOT NULL,
                     kalori REAL NOT NULL,
@@ -117,6 +138,7 @@ class Database {
             $pdo->exec("
                 CREATE TABLE IF NOT EXISTS olahraga_log (
                     id_olahraga INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER DEFAULT 1,
                     nama_olahraga TEXT NOT NULL,
                     durasi_menit REAL DEFAULT 0,
                     repetisi INTEGER DEFAULT 0,
@@ -125,26 +147,42 @@ class Database {
                 )
             ");
 
-            // Check if initial seed is needed for beratbadan
+            // Auto-check and migrate missing columns in existing SQLite tables
+            self::ensureSqliteColumn($pdo, 'beratbadan', 'user_id', 'INTEGER DEFAULT 1');
+            self::ensureSqliteColumn($pdo, 'hitung_makanan', 'user_id', 'INTEGER DEFAULT 1');
+            self::ensureSqliteColumn($pdo, 'olahraga_log', 'user_id', 'INTEGER DEFAULT 1');
+
+            // Auto-seed demo user if empty
+            $stmt = $pdo->query("SELECT COUNT(*) as count FROM users");
+            $userCount = (int)($stmt->fetch()['count'] ?? 0);
+            if ($userCount === 0) {
+                $hash = password_hash('password123', PASSWORD_DEFAULT);
+                $ins = $pdo->prepare("
+                    INSERT INTO users (email, password, nama, program, target_kalori, berat, tinggi, usia, gender, aktivitas, bmi, created_at)
+                    VALUES (?, ?, ?, 'bulking', 2600, 70, 175, 24, 'Laki-laki', 'moderate', 22.86, ?)
+                ");
+                $ins->execute(['demo@calorietracker.com', $hash, 'Demo User', date('Y-m-d H:i:s')]);
+            }
+
+            // Seed initial data for beratbadan if empty
             $stmt = $pdo->query("SELECT COUNT(*) as count FROM beratbadan");
             $row = $stmt->fetch();
             if ($row && (int)$row['count'] === 0) {
-                // Seed initial data from olahraga.sql so charts have rich initial context
                 $initialData = [
-                    [94, 182, 28, 'gemuk', '1880', '2025-02-05'],
-                    [80, 170, 28, 'gemuk', '1600', '2025-02-05'],
-                    [70, 180, 22, 'ideal', '2442', '2025-02-05'],
-                    [70, 185, 20, 'ideal', '2773', '2025-02-05'],
-                    [80, 182, 24, 'ideal', '2976', '2025-02-09'],
-                    [82, 182, 25, 'ideal', '3017', '2025-02-09'],
-                    [80, 178, 25, 'gemuk', '3318', '2025-02-11'],
-                    [80, 180, 25, 'ideal', '2650', '2025-02-11'],
-                    [78, 180, 24.1, 'ideal', '2580', date('Y-m-d')]
+                    [1, 94, 182, 28, 'gemuk', '1880', '2025-02-05'],
+                    [1, 80, 170, 28, 'gemuk', '1600', '2025-02-05'],
+                    [1, 70, 180, 22, 'ideal', '2442', '2025-02-05'],
+                    [1, 70, 185, 20, 'ideal', '2773', '2025-02-05'],
+                    [1, 80, 182, 24, 'ideal', '2976', '2025-02-09'],
+                    [1, 82, 182, 25, 'ideal', '3017', '2025-02-09'],
+                    [1, 80, 178, 25, 'gemuk', '3318', '2025-02-11'],
+                    [1, 80, 180, 25, 'ideal', '2650', '2025-02-11'],
+                    [1, 78, 180, 24.1, 'ideal', '2580', date('Y-m-d')]
                 ];
 
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO beratbadan (berat, tinggi, bmi, kategori, kalori_harian, target_program, tanggal)
-                    VALUES (?, ?, ?, ?, ?, 'bulking', ?)
+                    INSERT INTO beratbadan (user_id, berat, tinggi, bmi, kategori, kalori_harian, target_program, tanggal)
+                    VALUES (?, ?, ?, ?, ?, ?, 'bulking', ?)
                 ");
                 foreach ($initialData as $data) {
                     $insertStmt->execute($data);
@@ -154,8 +192,28 @@ class Database {
         } else {
             // MySQL migrations
             $pdo->exec("
+                CREATE TABLE IF NOT EXISTS `users` (
+                    `id_user` int(11) NOT NULL AUTO_INCREMENT,
+                    `email` varchar(150) NOT NULL UNIQUE,
+                    `password` varchar(255) NOT NULL,
+                    `nama` varchar(100) DEFAULT '',
+                    `program` varchar(50) DEFAULT 'bulking',
+                    `target_kalori` int(11) DEFAULT 2400,
+                    `berat` decimal(5,2) DEFAULT 70,
+                    `tinggi` int(11) DEFAULT 175,
+                    `usia` int(11) DEFAULT 25,
+                    `gender` varchar(20) DEFAULT 'Laki-laki',
+                    `aktivitas` varchar(50) DEFAULT 'moderate',
+                    `bmi` decimal(5,2) DEFAULT 22.86,
+                    `created_at` datetime NOT NULL,
+                    PRIMARY KEY (`id_user`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            ");
+
+            $pdo->exec("
                 CREATE TABLE IF NOT EXISTS `beratbadan` (
                     `id_beratbadan` int(11) NOT NULL AUTO_INCREMENT,
+                    `user_id` int(11) DEFAULT 1,
                     `berat` decimal(5,2) NOT NULL,
                     `tinggi` int(11) NOT NULL,
                     `usia` int(11) DEFAULT 25,
@@ -173,6 +231,7 @@ class Database {
             $pdo->exec("
                 CREATE TABLE IF NOT EXISTS `hitung_makanan` (
                     `id_hitung` int(11) NOT NULL AUTO_INCREMENT,
+                    `user_id` int(11) DEFAULT 1,
                     `makanan` varchar(100) NOT NULL,
                     `berat` decimal(6,2) NOT NULL,
                     `kalori` decimal(6,2) NOT NULL,
@@ -187,6 +246,7 @@ class Database {
             $pdo->exec("
                 CREATE TABLE IF NOT EXISTS `olahraga_log` (
                     `id_olahraga` int(11) NOT NULL AUTO_INCREMENT,
+                    `user_id` int(11) DEFAULT 1,
                     `nama_olahraga` varchar(100) NOT NULL,
                     `durasi_menit` decimal(6,2) DEFAULT 0,
                     `repetisi` int(11) DEFAULT 0,
@@ -195,6 +255,36 @@ class Database {
                     PRIMARY KEY (`id_olahraga`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             ");
+
+            // Seed demo user if empty
+            $stmt = $pdo->query("SELECT COUNT(*) as count FROM users");
+            if ((int)($stmt->fetch()['count'] ?? 0) === 0) {
+                $hash = password_hash('password123', PASSWORD_DEFAULT);
+                $ins = $pdo->prepare("
+                    INSERT INTO users (email, password, nama, program, target_kalori, berat, tinggi, usia, gender, aktivitas, bmi, created_at)
+                    VALUES (?, ?, ?, 'bulking', 2600, 70, 175, 24, 'Laki-laki', 'moderate', 22.86, NOW())
+                ");
+                $ins->execute(['demo@calorietracker.com', $hash, 'Demo User']);
+            }
+        }
+    }
+
+    private static function ensureSqliteColumn(PDO $pdo, string $table, string $column, string $definition): void {
+        try {
+            $stmt = $pdo->query("PRAGMA table_info({$table})");
+            $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $hasColumn = false;
+            foreach ($columns as $col) {
+                if ($col['name'] === $column) {
+                    $hasColumn = true;
+                    break;
+                }
+            }
+            if (!$hasColumn) {
+                $pdo->exec("ALTER TABLE {$table} ADD COLUMN {$column} {$definition}");
+            }
+        } catch (Throwable $e) {
+            // Table might not exist yet, handled by CREATE TABLE
         }
     }
 }

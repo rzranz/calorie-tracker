@@ -2,6 +2,10 @@
 /**
  * Shared Header Component
  */
+require_once __DIR__ . '/functions.php';
+
+$currentUser = getCurrentUser();
+
 if (!isset($pageTitle)) {
     $pageTitle = "Let's Move • Modern Fitness & Calorie Tracker";
 }
@@ -9,7 +13,6 @@ if (!isset($activeTab)) {
     $activeTab = 'dashboard';
 }
 
-// Calculate root relative path depending on caller directory depth
 $isSubdir = strpos($_SERVER['SCRIPT_NAME'] ?? '', '/tracker/') !== false;
 $rootPath = $isSubdir ? '../' : './';
 ?>
@@ -18,26 +21,26 @@ $rootPath = $isSubdir ? '../' : './';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Aplikasi pencatat kalori harian, kalkulator BMI/TDEE, pelacak nutrisi makanan, dan catatan olahraga terstruktur.">
     <title><?= htmlspecialchars($pageTitle) ?></title>
-    
-    <!-- Modern Design System -->
     <link rel="stylesheet" href="<?= $rootPath ?>css/modern.css">
-    
-    <!-- Chart.js for Visual Progress Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-    <!-- Top Navigation Bar -->
     <header class="navbar">
         <div class="app-container navbar-inner">
-            <a href="<?= $rootPath ?>index.php" class="brand-logo">
-                <div class="brand-icon">⚡</div>
-                <span>Let's Move</span>
-                <span class="brand-badge">Pro</span>
-            </a>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="<?= $rootPath ?>index.php" class="brand-logo">
+                    <div class="brand-icon">⚡</div>
+                    <span>Let's Move</span>
+                </a>
+                <?php if ($currentUser && !empty($currentUser['program'])): ?>
+                    <span class="badge badge-emerald" style="text-transform: uppercase;">
+                        <?= htmlspecialchars($currentUser['program']) ?>
+                    </span>
+                <?php endif; ?>
+            </div>
 
-            <button class="nav-mobile-toggle" id="navToggleBtn" aria-label="Toggle navigation menu">
+            <button class="nav-mobile-toggle" id="navToggleBtn" aria-label="Toggle navigation">
                 ☰
             </button>
 
@@ -48,8 +51,8 @@ $rootPath = $isSubdir ? '../' : './';
                     </a>
                 </li>
                 <li>
-                    <a href="<?= $rootPath ?>index.php#calculator" class="nav-link <?= ($activeTab === 'calculator') ? 'active' : '' ?>">
-                        ⚖️ Kalkulator BMI & TDEE
+                    <a href="<?= $rootPath ?>setup.php" class="nav-link <?= ($activeTab === 'setup') ? 'active' : '' ?>">
+                        ⚖️ Kalkulator BMI & Program
                     </a>
                 </li>
                 <li>
@@ -59,24 +62,25 @@ $rootPath = $isSubdir ? '../' : './';
                 </li>
                 <li>
                     <a href="<?= $rootPath ?>tracker/olahraga.html" class="nav-link <?= ($activeTab === 'exercise') ? 'active' : '' ?>">
-                        🏋️ Catatan Olahraga
+                        🏋️ Olahraga
                     </a>
                 </li>
-                <li>
-                    <a href="<?= $rootPath ?>tracker/bulking.php" class="nav-link <?= ($activeTab === 'bulking') ? 'active' : '' ?>">
-                        💪 Program Bulking
-                    </a>
-                </li>
-                <li>
-                    <a href="<?= $rootPath ?>tracker/diet.php" class="nav-link <?= ($activeTab === 'diet') ? 'active' : '' ?>">
-                        🥑 Program Diet
-                    </a>
-                </li>
+                <?php if ($currentUser): ?>
+                    <li>
+                        <a href="<?= $rootPath ?>logout.php" class="nav-link" style="color: #fda4af;">
+                            🚪 Keluar (<?= htmlspecialchars(explode('@', $currentUser['email'])[0]) ?>)
+                        </a>
+                    </li>
+                <?php else: ?>
+                    <li>
+                        <a href="<?= $rootPath ?>login.php" class="nav-link active">
+                            Masuk / Daftar
+                        </a>
+                    </li>
+                <?php endif; ?>
             </ul>
         </div>
     </header>
 
-    <!-- Toast Container for Notifications -->
     <div class="toast-container" id="toastContainer"></div>
-
     <main style="flex: 1;">

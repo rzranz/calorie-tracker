@@ -6,6 +6,9 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../includes/functions.php';
 
+$user = getCurrentUser();
+$userId = $user ? (int)$user['id_user'] : 1;
+
 $action = $_GET['action'] ?? ($_POST['action'] ?? '');
 $input = json_decode(file_get_contents('php://input'), true) ?? [];
 if (!empty($input['action'])) {
@@ -29,7 +32,7 @@ try {
                 exit;
             }
 
-            $id = saveWeightLog($weight, $height, $age, $gender, $activity, $goal, $date);
+            $id = saveWeightLog($weight, $height, $age, $gender, $activity, $goal, $date, $userId);
             $bmi = calculateBMI($weight, $height);
             $cat = getBMICategory($bmi);
             $bmr = calculateBMR($weight, $height, $age, $gender);
@@ -66,10 +69,9 @@ try {
 
         case 'history':
         default:
-            $history = getWeightHistory(30);
-            $latest = getLatestWeightLog();
+            $history = getWeightHistory(30, $userId);
+            $latest = getLatestWeightLog($userId);
 
-            // Prepare timeline for Chart.js (chronological order)
             $chartData = array_reverse($history);
             $labels = [];
             $weights = [];
